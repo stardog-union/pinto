@@ -76,7 +76,7 @@ You can easily serialize it as RDF:
 Graph aGraph = RDFMapper.create().writeValue(new Person("Michael Grove"));
 ```
 
-`aGraph` serialized as NTriples:
+And `aGraph` serialized as NTriples:
 
 ```
 <tag:complexible:pinto:f97658c7048377a026111c7806bd7280> <tag:complexible:pinto:name> "Michael Grove"^^<http://www.w3.org/2001/XMLSchema#string> .
