@@ -64,49 +64,6 @@ dependencies {
 	testCompile 'junit:junit:4.11'
 }
 
-
 tasks.withType(Test) {
 	systemProperties = System.getProperties()
-}
-
-if (project.hasProperty('artifactoryUrl')
-	&& project.hasProperty('artifactoryUsername')
-	&& project.hasProperty('artifactoryPassword')) {
-
-	// this task is just so artifactory picks up the pom changes
-	task('uploadMvn', type: Upload) {
-		configuration = configurations.archives
-		repositories {
-			mavenDeployer {
-				repository(url: artifactoryUrl)
-				pom.project {
-					name = archivesBaseName
-					packaging = 'jar'
-					description projectDescription
-					url projectUrl
-				}
-
-				//mess with the generated pom to remove test dependencies from published artifacts
-				pom.withXml { XmlProvider xmlProvider ->
-					def xml = xmlProvider.asString()
-					def pomXml = new XmlParser().parse(new ByteArrayInputStream(xml.toString().bytes))
-
-					pomXml.dependencies.dependency.each { dep ->
-						if (dep.scope.text() != 'compile') {
-							def parent = dep.parent()
-							parent.remove(dep)
-						}
-					}
-
-					def newXml = new StringWriter()
-					def printer = new XmlNodePrinter(new PrintWriter(newXml))
-					printer.preserveWhitespace = true
-					printer.print(pomXml)
-					xml.setLength(0)
-					xml.append(newXml.toString())
-				}
-
-			}
-		}
-	}
 }
