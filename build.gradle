@@ -30,7 +30,7 @@ group = "com.complexible.pinto"
 version = "1.0"
 
 ext {
-	projectDescription = "Pinto"
+	projectDescription = "Pinto: A lightweight framework for mapping Java Beans into RDF and back again"
 	projectUrl = "https://github.com/complexible/pinto"
 }
 
@@ -52,7 +52,7 @@ dependencies {
 	compile "commons-beanutils:commons-beanutils:1.9.2"
 	compile "commons-codec:commons-codec:1.10"
 
-	compile "com.complexible.common:cp-openrdf-utils:3.0"
+	compile "com.complexible.common:cp-openrdf-utils:3.0.1"
 	compile "com.complexible.common:cp-common-utils:4.0"
 
 	// these should be coming from cp-openrdf-utils, but it's missing these

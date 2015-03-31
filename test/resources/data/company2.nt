@@ -1,0 +1,4 @@
+<tag:complexible:pinto:c9bb1faf2d655fd94d29b77cc27cf653> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Company> .
+<tag:complexible:pinto:c9bb1faf2d655fd94d29b77cc27cf653> <tag:complexible:pinto:website> "http://clarkparsia.com"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:c9bb1faf2d655fd94d29b77cc27cf653> <http://xmlns.com/foaf/0.1/name> "Clark & Parsia"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:c9bb1faf2d655fd94d29b77cc27cf653> <tag:complexible:pinto:numberOfEmployees> "10"^^<http://www.w3.org/2001/XMLSchema#integer> .

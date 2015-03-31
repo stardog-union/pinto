@@ -11,7 +11,21 @@ Inspired by [Jackson](https://github.com/FasterXML/jackson) and [Empire](http://
 be simple and easy to use.  No annotations or configuration are required.  If you have a compliant Java bean Pinto will
 turn it into RDF.
 
-The [rdf4j](http://rdf4j.com)
+The [rdf4j](http://rdf4j.com) framework is used to represent RDF primitives such as Graph and Statement.
+
+## Building
+
+To create the artifacts:
+
+```bash
+$ gradle jar
+```
+
+And to run the tests:
+
+```bash
+$ gradle test
+```
 
 ## Example Usage
 

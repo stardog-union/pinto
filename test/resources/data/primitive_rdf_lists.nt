@@ -1,0 +1,5 @@
+_:node19fteuv9dx7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "4"^^<http://www.w3.org/2001/XMLSchema#int> .
+_:node19fteuv9dx7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node19fteuv9dx8 .
+_:node19fteuv9dx8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "5"^^<http://www.w3.org/2001/XMLSchema#int> .
+_:node19fteuv9dx8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<tag:complexible:pinto:9017b0ab9335e4d090290a0dffc81826> <tag:complexible:pinto:ints> _:node19fteuv9dx7 .

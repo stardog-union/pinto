@@ -1,0 +1,7 @@
+<tag:complexible:pinto:fe0fe12ccf44774cfc76fc917750b2b3> <tag:complexible:pinto:name> "Earl Weaver"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:1792529cbba8c3fe944e0c12ca7bfd48> <tag:complexible:pinto:name> "Brooks Robinson"^^<http://www.w3.org/2001/XMLSchema#string> .
+_:node19hodeqhjx1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <tag:complexible:pinto:fe0fe12ccf44774cfc76fc917750b2b3> .
+_:node19hodeqhjx1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node19hodeqhjx2 .
+_:node19hodeqhjx2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <tag:complexible:pinto:1792529cbba8c3fe944e0c12ca7bfd48> .
+_:node19hodeqhjx2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<tag:complexible:pinto:716825cc44cff258b685466022250434> <tag:complexible:pinto:list> _:node19hodeqhjx1 .

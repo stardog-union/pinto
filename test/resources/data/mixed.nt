@@ -1,0 +1,8 @@
+<tag:complexible:pinto:45ad04336c95c0be6bba90e4b663da4d> <tag:complexible:pinto:string> "class with mixed"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:45ad04336c95c0be6bba90e4b663da4d> <tag:complexible:pinto:child> <tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> .
+<tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> <tag:complexible:pinto:string> "str value"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> <tag:complexible:pinto:double> "20.22"^^<http://www.w3.org/2001/XMLSchema#double> .
+<tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> <tag:complexible:pinto:float> "4.5"^^<http://www.w3.org/2001/XMLSchema#float> .
+<tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> <tag:complexible:pinto:char> "o"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> <tag:complexible:pinto:URI> "urn:any"^^<http://www.w3.org/2001/XMLSchema#anyURI> .
+<tag:complexible:pinto:9308941892e8d88adbe68e4bcfcb54bf> <tag:complexible:pinto:int> "8"^^<http://www.w3.org/2001/XMLSchema#int> .

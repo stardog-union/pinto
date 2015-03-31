@@ -1,0 +1,6 @@
+<tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc> <tag:complexible:pinto:string> "str value"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc> <tag:complexible:pinto:double> "20.22"^^<http://www.w3.org/2001/XMLSchema#double> .
+<tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc> <tag:complexible:pinto:char> "o"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc> <tag:complexible:pinto:float> "4.5"^^<http://www.w3.org/2001/XMLSchema#float> .
+<tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc> <tag:complexible:pinto:URI> "urn:any"^^<http://www.w3.org/2001/XMLSchema#anyURI> .
+<tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc> <tag:complexible:pinto:int> "8"^^<http://www.w3.org/2001/XMLSchema#int> .
