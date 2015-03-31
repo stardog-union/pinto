@@ -56,7 +56,7 @@ dependencies {
 	compile "com.complexible.common:cp-common-utils:4.0"
 
 	// these should be coming from cp-openrdf-utils, but it's missing these
-	compile "org.openrdf.sesame:sesame-rio-ntriples:2.7.15"
+	compile "org.openrdf.sesame:sesame-rio-ntriples:2.7.14"
 
 	compile "org.slf4j:slf4j-api:1.7.7"
 	compile "org.slf4j:slf4j-jdk14:1.7.7"
