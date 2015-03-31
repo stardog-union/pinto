@@ -1,0 +1,11 @@
+lib
+build
+.DS_Store
+
+*.iml
+*.ipr
+*.iws
+
+gradle.properties
+
+.gradle

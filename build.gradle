@@ -1,0 +1,112 @@
+apply plugin: "idea"
+apply plugin: "java"
+apply plugin: "maven"
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.0'
+	distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'main/src'
+		}
+		resources {
+			srcDir 'main/resources'
+		}
+	}
+	test {
+		java {
+			srcDir 'test/src'
+		}
+		resources {
+			srcDir 'test/resources'
+		}
+	}
+}
+
+group = "com.complexible.pinto"
+version = "1.0"
+
+ext {
+	projectDescription = "Pinto"
+	projectUrl = "https://github.com/complexible/pinto"
+}
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+repositories {
+	mavenCentral()
+	maven {
+		url "http://maven.stardog.com"
+	}
+}
+
+dependencies {
+	compile (group: "com.google.guava", name: "guava", version: "18.0") {
+		exclude group: "com.google.code.findbugs"
+	}
+
+	compile "commons-beanutils:commons-beanutils:1.9.2"
+	compile "commons-codec:commons-codec:1.10"
+
+	compile "com.complexible.common:cp-openrdf-utils:3.0"
+	compile "com.complexible.common:cp-common-utils:4.0"
+
+	// these should be coming from cp-openrdf-utils, but it's missing these
+	compile "org.openrdf.sesame:sesame-rio-ntriples:2.7.15"
+
+	compile "org.slf4j:slf4j-api:1.7.7"
+	compile "org.slf4j:slf4j-jdk14:1.7.7"
+
+	testCompile 'junit:junit:4.11'
+}
+
+
+tasks.withType(Test) {
+	systemProperties = System.getProperties()
+}
+
+if (project.hasProperty('artifactoryUrl')
+	&& project.hasProperty('artifactoryUsername')
+	&& project.hasProperty('artifactoryPassword')) {
+
+	// this task is just so artifactory picks up the pom changes
+	task('uploadMvn', type: Upload) {
+		configuration = configurations.archives
+		repositories {
+			mavenDeployer {
+				repository(url: artifactoryUrl)
+				pom.project {
+					name = archivesBaseName
+					packaging = 'jar'
+					description projectDescription
+					url projectUrl
+				}
+
+				//mess with the generated pom to remove test dependencies from published artifacts
+				pom.withXml { XmlProvider xmlProvider ->
+					def xml = xmlProvider.asString()
+					def pomXml = new XmlParser().parse(new ByteArrayInputStream(xml.toString().bytes))
+
+					pomXml.dependencies.dependency.each { dep ->
+						if (dep.scope.text() != 'compile') {
+							def parent = dep.parent()
+							parent.remove(dep)
+						}
+					}
+
+					def newXml = new StringWriter()
+					def printer = new XmlNodePrinter(new PrintWriter(newXml))
+					printer.preserveWhitespace = true
+					printer.print(pomXml)
+					xml.setLength(0)
+					xml.append(newXml.toString())
+				}
+
+			}
+		}
+	}
+}
