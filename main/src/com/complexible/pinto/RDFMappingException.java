@@ -16,11 +16,13 @@
 package com.complexible.pinto;
 
 /**
- * <p></p>
+ * <p>General exception indicating there was an error while mapping a bean into RDF, or vice versa.</p>
  *
  * @author  Michael Grove
  * @since   1.0
  * @version 1.0
+ *
+ * @see RDFMapper
  */
 public class RDFMappingException extends RuntimeException {
 	public RDFMappingException(final Throwable theCause) {

@@ -16,11 +16,13 @@
 package com.complexible.pinto;
 
 /**
- * <p></p>
+ * <p>Exception indicating that an identifier could not be created for an object.</p>
  *
  * @author  Michael Grove
  * @since   1.0
  * @version 1.0
+ *
+ * @see RDFMapper#writeValue(Object)
  */
 public class UnidentifiableObjectException extends RuntimeException {
 	public UnidentifiableObjectException(final String theMessage) {

@@ -19,7 +19,7 @@ import com.complexible.pinto.SourcedObject;
 import org.openrdf.model.Graph;
 
 /**
- * <p></p>
+ * <p>Default implementation of {@link SourcedObject}</p>
  *
  * @author  Michael Grove
  * @since   1.0

@@ -20,13 +20,28 @@ import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 
 /**
- * <p></p>
+ * <p>Interface for a codec which can (de)serialize an object.  Useful in situations where the instance does not
+ * conform to the Java bean specification, or is a third-party class and you cannot apply annotations to customize
+ * the RDF output.</p>
+ *
+ * <p>Codecs should be provided to the {@link RDFMapper.Builder#codec(Class, RDFCodec) mapper} when it's being created.</p>
  *
  * @author  Michael Grove
  * @since   1.0
  * @version 1.0
  */
 public interface RDFCodec<T> {
+
+	/**
+	 * Serialize the given value as RDF.  This should produce a round-trippable serialization, that is, the output of
+	 * this method should return an object that is {@code .equals} to the result of passing the RDF to
+	 * {@link #readValue(Graph, Resource)}.
+	 *
+	 * @param theValue  the value to serialize
+	 *
+	 * @return          the value represented as RDF; calling {@code ResourceBuilder.graph()} should return the RDF
+	 *                  representing the instance.
+	 */
 	public ResourceBuilder writeValue(final T theValue);
 
 	/**

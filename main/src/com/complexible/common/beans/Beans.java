@@ -23,7 +23,7 @@ import java.util.Iterator;
 import com.google.common.collect.AbstractIterator;
 
 /**
- * <p></p>
+ * <p>Utility class for working with Java beans</p>
  *
  * @author  Michael Grove
  * @version 1.0
@@ -63,6 +63,12 @@ public final class Beans {
 		        || java.net.URI.class.equals(theObj));
 	}
 
+	/**
+	 * Return an {@link Iterable} of the declared fields of the {@link Class}
+	 *
+	 * @param theClass  the class
+	 * @return          the declared fields
+	 */
 	public static Iterable<Field> getDeclaredFields(final Class<?> theClass) {
 		return new Iterable<Field>() {
 			public Iterator<Field> iterator() {
@@ -100,6 +106,12 @@ public final class Beans {
 		};
 	}
 
+	/**
+	 * Return an {@link Iterable} of the declared methods of the {@link Class}
+	 *
+	 * @param theClass  the class
+	 * @return          the declared methods
+	 */
 	public static Iterable<Method> getDeclaredMethods(final Class<?> theClass) {
 		return new Iterable<Method>() {
 			public Iterator<Method> iterator() {

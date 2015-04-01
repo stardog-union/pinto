@@ -24,9 +24,10 @@ import com.google.common.base.Predicates;
 import static com.google.common.collect.Iterables.any;
 
 /**
- * <p></p>
+ * <p>Utility class for working with Class via Java reflect</p>
  *
  * @author  Michael Grove
+ *
  * @version 1.0
  * @since   1.0
  */
@@ -36,18 +37,42 @@ public final class Classes {
 		throw new AssertionError();
 	}
 
+	/**
+	 * Return whether or not the {@link Class} implements the given interface
+	 *
+	 * @param theClass      the class
+	 * @param theInterface  the interface
+	 * @return              true if it implements it, false otherwise
+	 */
 	public static boolean _implements(final Class<?> theClass, final Class<?> theInterface) {
 		return any(interfaces(theClass), Predicates.<Class<?>>equalTo(theInterface));
 	}
 
+	/**
+	 * Return all the interfaces of the {@link Class} as an {@link Iterable}
+	 * @param theClass
+	 * @return
+	 */
 	public static Iterable<Class<?>> interfaces(final Class<?> theClass) {
 		return Iterables2.forArray(theClass.getInterfaces());
 	}
 
+	/**
+	 * Return whether or not the {@link Class} is instantiable, ie not an interface and not abstract.
+	 *
+	 * @param theClass  the class
+	 * @return          true if instantiable, false otherwise.
+	 */
 	public static boolean isInstantiable(final Class<?> theClass) {
 		return !theClass.isInterface() && !Modifier.isAbstract(theClass.getModifiers());
 	}
 
+	/**
+	 * Return whether or not the {@link Class} contains a default constructor
+	 *
+	 * @param theClass  the class
+	 * @return          true if it has a default constructor, false otherwise
+	 */
 	public static boolean hasDefaultConstructor(final Class<?> theClass) {
 		// rather than calling theClass.getConstructor() directly and incurring the overhead of creating
 		// the NoSuchMethodException if the constructor is not present, we'll just scan through the constructors

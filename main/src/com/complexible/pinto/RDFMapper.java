@@ -77,6 +77,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,6 +104,7 @@ public class RDFMapper {
 	private static final ImmutableSet<URI> INTEGER_TYPES = ImmutableSet.of(XMLSchema.INT, XMLSchema.INTEGER, XMLSchema.POSITIVE_INTEGER,
 	                                                               XMLSchema.NEGATIVE_INTEGER, XMLSchema.NON_NEGATIVE_INTEGER,
 	                                                               XMLSchema.NON_POSITIVE_INTEGER, XMLSchema.UNSIGNED_INT);
+
 	private static final ImmutableSet<URI> LONG_TYPES = ImmutableSet.of(XMLSchema.LONG, XMLSchema.UNSIGNED_LONG);
 	private static final ImmutableSet<URI> FLOAT_TYPES = ImmutableSet.of(XMLSchema.FLOAT, XMLSchema.DECIMAL);
 	private static final ImmutableSet<URI> SHORT_TYPES = ImmutableSet.of(XMLSchema.SHORT, XMLSchema.UNSIGNED_SHORT);
@@ -159,15 +161,17 @@ public class RDFMapper {
 		try {
 			return theClass.newInstance();
 		}
-//		catch (InstantiationException | IllegalAccessException e) {
 		catch (Exception e) {
 			throw new RDFMappingException(String.format("Could not create an instance of %s, it does not have a default constructor", theClass));
 		}
 	}
 
 	/**
-	 * Read the object from the RDF.  If there is more than one resource in the graph, you should use
-	 * {@link #readValue(Graph, Class, Resource)} and specify the identifer of the object you wish to read.
+	 * Read the object from the RDF.
+	 *
+	 * If there is more than one resource in the graph, you should use {@link #readValue(Graph, Class, Resource)} and
+	 * specify the identifier of the object you wish to read.  Otherwise, an {@link RDFMappingException} will be thrown
+	 * to indicate that it's not clear what resource should be read.
 	 *
 	 * @param theGraph  the RDF
 	 * @param theClass  the type of the object to read
@@ -321,7 +325,6 @@ public class RDFMapper {
 				// lazy.  we'll go with lazy
 				PropertyUtils.setProperty(aInst, aDescriptor.getName(), aObj);
 			}
-//			catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			catch (Exception e) {
 				Throwables.propagateIfInstanceOf(e, RDFMappingException.class);
 				throw new RDFMappingException(e);
@@ -368,10 +371,14 @@ public class RDFMapper {
 	}
 
 	/**
-	 * Write the given value as RDF
+	 * Write the given value as RDF.
 	 *
 	 * @param theValue  the value to write
 	 * @return          the value serialized as RDF
+	 *
+	 * @throws  UnidentifiableObjectException   thrown when an rdf:ID cannot be created for {@link theValue}
+	 * @throws  RDFMappingException             indicates a general error, such as issues transforming a property value
+	 *                                          into RDF.
 	 */
 	public <T> Graph writeValue(final T theValue) {
 		return write(theValue).graph();
@@ -849,6 +856,11 @@ public class RDFMapper {
 		}
 	}
 
+	/**
+	 * Get or generate an rdf:ID for the given object
+	 * @param theT  the object
+	 * @return      the rdf:ID
+	 */
 	private <T> Resource id(final T theT) {
 		if (theT instanceof Identifiable) {
 			Identifiable aIdentifiable = (Identifiable) theT;
@@ -861,7 +873,7 @@ public class RDFMapper {
 		final Iterable<String> aProps = transform(filter(Beans.getDeclaredMethods(theT.getClass()),
 		                                                 Methods.annotated(RdfId.class)), Methods.property());
 
-		// Sort the properties so they'are always iterated over in the same order.  since the hash is sensitive
+		// Sort the properties so they're always iterated over in the same order.  since the hash is sensitive
 		// to iteration order, the same inputs but in a different order yields a different hashed value, and thus
 		// a different ID, even though it's the *same* resource.
 		final List<String> aSorted = Ordering.natural().sortedCopy(aProps);
@@ -1098,7 +1110,8 @@ public class RDFMapper {
 		}
 	}
 
-	public static final class Graphs2 {
+	// todo: move to openrdf-utils
+	private static final class Graphs2 {
 		private static final Graph EMPTY_GRAPH = new Graph() {
 			@Override
 			public int size() {
@@ -1227,14 +1240,40 @@ public class RDFMapper {
 			}
 	}
 
+	/**
+	 * <p>A factory for creating instances of {@link Collection} when {@link #readValue(Graph, Class) reading} an object.</p>
+	 *
+	 * @author  Michael Grove
+	 * @since   1.0
+	 * @version 1.0
+	 *
+	 * @see DefaultCollectionFactory
+	 */
 	public interface CollectionFactory {
 		public Collection create(final PropertyDescriptor thePropertyDescriptor);
 	}
 
+	/**
+	 * <p>A factory for creating instances of {@link Map} when {@link #readValue(Graph, Class) reading} an object.</p>
+	 *
+	 * @author  Michael Grove
+	 * @since   1.0
+	 * @version 1.0
+	 *
+	 * @see DefaultMapFactory
+	 */
 	public interface MapFactory {
 		public Map create(final PropertyDescriptor theDescriptor);
 	}
 
+	/**
+	 * <p>Default implementation of a {@link MapFactory} which relies on {@link Class#newInstance()} and falls back
+	 * to creating a {@link LinkedHashMap} when that fails.</p>
+	 *
+	 * @author  Michael Grove
+	 * @since   1.0
+	 * @version 1.0
+	 */
 	public static class DefaultMapFactory implements MapFactory {
 		@Override
 		public Map create(final PropertyDescriptor theDescriptor) {
@@ -1250,10 +1289,19 @@ public class RDFMapper {
 			}
 
 			return Maps.newLinkedHashMap();
-			//throw new IllegalArgumentException("Unknown or unsupported map type for property " + theDescriptor);
 		}
 	}
 
+	/**
+	 * <p>Default implementation of a {@link CollectionFactory}.  Uses {@link Class#newInstance()}, but when that
+	 * fails, it will fall back to creating a default type for each basic type of {@code Collection}.  For {@code List}
+	 * an {@link ArrayList} is used, for {@code Set} a {@link LinkedHashSet}, for {@code SortedSet} a {@link TreeSet}, and
+	 * for any other type of {@code Collection}, a {@link LinkedHashSet}.</p>
+	 *
+	 * @author  Michael Grove
+	 * @since   1.0
+	 * @version 1.0
+	 */
 	public static class DefaultCollectionFactory implements CollectionFactory {
 		/**
 		 * {@inheritDoc}
@@ -1289,6 +1337,7 @@ public class RDFMapper {
 		}
 	}
 
+	// todo: move to commons-utils
 	private static final class Dates2 {
 		public static Date asDate(final String theDate) {
 			try {

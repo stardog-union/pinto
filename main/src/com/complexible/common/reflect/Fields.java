@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import com.google.common.base.Predicate;
 
 /**
- * <p></p>
+ * <p>Utility for working with Fields via Java reflect</p>
  *
  * @author  Michael Grove
  * @version 1.0
@@ -33,6 +33,12 @@ public final class Fields {
 		throw new AssertionError();
 	}
 
+	/**
+	 * Predicate that will return whether or not a field has the given anotation
+	 *
+	 * @param theAnnotation the annotation
+	 * @return              a predicate that will check a field for the annotation
+	 */
 	public static Predicate<Field> annotated(final Class<? extends Annotation> theAnnotation) {
 		return new Predicate<Field>() {
 			@Override

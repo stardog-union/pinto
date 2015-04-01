@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * <p>Method level annotation to specify the method(s) that should be used, if possible, to generate the objects
- * rdf:ID from.</p>
+ * rdf:ID from.  Can be placed on multiple properties to specify that each should be used to identify the object.</p>
  *
  * @author  Michael Grove
  * @since   1.0

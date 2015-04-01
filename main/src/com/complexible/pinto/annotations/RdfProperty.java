@@ -20,8 +20,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.complexible.pinto.MappingOptions;
+
 /**
- * <p></p>
+ * <p>Method annotation which should be specified on either the getter or setter of a bean property to control
+ * aspects of the serialization of that property into RDF.</p>
  *
  * @author  Michael Grove
  * @since   1.0
@@ -33,14 +36,17 @@ public @interface RdfProperty {
 
 	/**
 	 * The URI value (or qname) of the RDF property the field or method is mapped to
+	 *
 	 * @return the property URI
 	 */
 	public String value() default "";
 
 	/**
-	 * Where or not to process multiple values in a collection as an rdf:List
-	 * @return True to process values as an rdf:List, false to process them as multiple assertions on the property.
-	 * Default value is false.
+	 * Whether or not to process multiple values in a collection as an {@code rdf:List}.  Overrides any
+	 * {@link MappingOptions#SERIALIZE_COLLECTIONS_AS_LISTS option set} on the {@link RDFMapper mapper}.
+	 *
+	 * @return `true` to process values as an {@code rdf:List}, `false` to process them as multiple assertions on the
+	 * property. Default value is `false`.
 	 */
 	public boolean isList() default false;
 
@@ -51,5 +57,10 @@ public @interface RdfProperty {
 	 */
 	public String language() default "";
 
+	/**
+	 * For literal valued properties, this specifies the datatype that should be used for the literal.  It overrides
+	 * any type inference, such as mapping {@link java.util.Date} to {@code xsd:date}, performed by
+	 * {@link RDFMapper the mapper}
+	 */
 	public String datatype() default "";
 }

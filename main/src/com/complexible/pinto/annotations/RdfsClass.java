@@ -21,7 +21,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p></p>
+ * <p>Class annotation which can be used to specify the {@code rdf:type} of an instance</p>
+ *
+ * <p>Example:</p>
+ *
+ * {@code
+ * @RdfsClass("foaf:Person")
+ * public final class Person {
+ * ...
+ * }
+ * }
  *
  * @author  Michael Grove
  * @since   1.0

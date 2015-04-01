@@ -18,14 +18,25 @@ package com.complexible.pinto;
 import org.openrdf.model.Resource;
 
 /**
- * <p></p>
+ * <p>Marker interface for something which has an rdf:ID associated with it</p>
  *
  * @author  Michael Grove
  * @since   1.0
  * @version 1.0
  */
 public interface Identifiable {
+
+	/**
+	 * Return the rdf:ID of this instance
+	 *
+	 * @return  the id
+	 */
 	public Resource id();
 
+	/**
+	 * Set the rdf:ID of this instance
+	 *
+	 * @param theResource   the id
+	 */
 	public void id(final Resource theResource);
 }

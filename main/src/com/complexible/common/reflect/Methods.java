@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 /**
- * <p></p>
+ * <p>Utility for working with Methods via Java reflect</p>
  *
  * @author  Michael Grove
  * @version 1.0
@@ -35,6 +35,12 @@ public final class Methods {
 		throw new AssertionError();
 	}
 
+	/**
+	 * Predicate that will return whether or not a method has the given anotation
+	 *
+	 * @param theAnnotation the annotation
+	 * @return              a predicate that will check a method for the annotation
+	 */
 	public static Predicate<Method> annotated(final Class<? extends Annotation> theAnnotation) {
 		return new Predicate<Method>() {
 			@Override
@@ -44,6 +50,11 @@ public final class Methods {
 		};
 	}
 
+	/**
+	 * Function that will return the bean property name corresponding to the given method.
+	 *
+	 * @return  property name function
+	 */
 	public static Function<Method, String> property() {
 		return new Function<Method, String>() {
 			@Override

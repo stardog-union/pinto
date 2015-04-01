@@ -28,7 +28,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import java.util.UUID;
 
 /**
- * <p></p>
+ * <p>Codec for (de)serializing {@link UUID}.</p>
  *
  * @author  Michael Grove
  * @since   1.0

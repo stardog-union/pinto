@@ -15,17 +15,28 @@
 
 package com.complexible.pinto;
 
+import com.google.common.annotations.Beta;
 import org.openrdf.model.Graph;
 
 /**
- * <p></p>
+ * <p>Marker interface for an object which was generated from RDF</p>
  *
  * @author  Michael Grove
  * @since   1.0
  * @version 1.0
  */
+@Beta
 public interface SourcedObject {
+
+	/**
+	 * Return the graph of RDF used to create the object
+	 * @return  the graph
+	 */
 	public Graph getSourceGraph();
 
+	/**
+	 * Set the graph of RDF used to create the object
+	 * @param theGraph  the RDF
+	 */
 	public void setSourceGraph(final Graph theGraph);
 }

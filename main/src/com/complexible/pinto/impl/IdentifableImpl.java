@@ -19,7 +19,7 @@ import com.complexible.pinto.Identifiable;
 import org.openrdf.model.Resource;
 
 /**
- * <p></p>
+ * <p>Default implementation of {@link Identifiable}</p>
  *
  * @author  Michael Grove
  * @since   1.0
