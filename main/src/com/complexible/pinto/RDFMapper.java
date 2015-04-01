@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
@@ -859,9 +860,15 @@ public class RDFMapper {
 
 		final Iterable<String> aProps = transform(filter(Beans.getDeclaredMethods(theT.getClass()),
 		                                                 Methods.annotated(RdfId.class)), Methods.property());
-		if (!Iterables.isEmpty(aProps)) {
+
+		// Sort the properties so they'are always iterated over in the same order.  since the hash is sensitive
+		// to iteration order, the same inputs but in a different order yields a different hashed value, and thus
+		// a different ID, even though it's the *same* resource.
+		final List<String> aSorted = Ordering.natural().sortedCopy(aProps);
+
+		if (!Iterables.isEmpty(aSorted)) {
 			Hasher aFunc = Hashing.md5().newHasher();
-			for (String aProp : aProps) {
+			for (String aProp : aSorted) {
 				try {
 					final Object aValue = PropertyUtils.getProperty(theT, aProp);
 
@@ -871,7 +878,6 @@ public class RDFMapper {
 
 					aFunc.putString(aValue.toString(), Charsets.UTF_8);
 				}
-//				catch (IllegalAccessException | InvocationTargetException  | NoSuchMethodException e) {
 				catch (Exception e) {
 					Throwables.propagateIfInstanceOf(e, RDFMappingException.class);
 					throw new RDFMappingException(e);
