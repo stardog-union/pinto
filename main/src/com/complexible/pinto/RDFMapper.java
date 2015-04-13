@@ -270,8 +270,14 @@ public class RDFMapper {
 			}
 			else if (Map.class.isAssignableFrom(aDescriptor.getPropertyType())) {
 				if (aValues.size() > 1) {
-					throw new RDFMappingException(String.format("%s values found, but property type is Map, one value expected",
-					                                            aValues.size()));
+					if (mMappingOptions.is(MappingOptions.IGNORE_CARDINALITY_VIOLATIONS)) {
+						LOGGER.warn("Property type of {} is Map, expected a single value, but {} were found.  MappingOptions is set to ignore this, so using only the first value.",
+						            aDescriptor.getName(), aValues.size());
+					}
+					else {
+						throw new RDFMappingException(String.format("%s values found, but property type is Map, one value expected",
+						                                            aValues.size()));
+					}
 				}
 
 				Value aPropValue = aValues.iterator().next();
@@ -310,8 +316,14 @@ public class RDFMapper {
 			}
 			else {
 				if (aValues.size() > 1) {
-					throw new RDFMappingException(String.format("%s values found, but property type is %s",
-					                                            aValues.size(), aDescriptor.getPropertyType()));
+					if (mMappingOptions.is(MappingOptions.IGNORE_CARDINALITY_VIOLATIONS)) {
+						LOGGER.warn("Property type of {} is {}, expected a single value, but {} were found.  MappingOptions is set to ignore this, so using only the first value.",
+						            aDescriptor.getName(), aDescriptor.getPropertyType(), aValues.size());
+					}
+					else {
+						throw new RDFMappingException(String.format("%s values found, but property type is %s",
+						                                            aValues.size(), aDescriptor.getPropertyType()));
+					}
 				}
 
 				final Value aValue = aValues.iterator().next();

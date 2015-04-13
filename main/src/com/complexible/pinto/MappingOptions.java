@@ -24,7 +24,7 @@ import com.complexible.pinto.annotations.RdfProperty;
  *
  * @author  Michael Grove
  * @since   1.0
- * @version 1.0
+ * @version 1.0.1
  *
  * @see RDFMapper.Builder#set(Option, Object)
  */
@@ -62,4 +62,14 @@ public final class MappingOptions {
 	 * default: `true`
 	 */
 	public static final Option<Boolean> IGNORE_INVALID_ANNOTATIONS = Option.create("ignore.invalid.annotations", true);
+
+	/**
+	 * Whether or not it should be considered a fatal error when the cardinality of a property is violated.
+	 * If the property is defined with a single value, {@code public Foo getFoo()} but there are multiple values in
+	 * the data which map to the {@code Foo} property, this controls whether an exception is thrown, or if the first
+	 * value is taken and the rest ignored (and a warning logged).
+	 *
+	 * default: `false`
+	 */
+	public static final Option<Boolean> IGNORE_CARDINALITY_VIOLATIONS = Option.create("ignore.cardinality.violations", false);
 }
