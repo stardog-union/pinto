@@ -467,7 +467,7 @@ public class RDFMapperTests {
 	@Test
 	public void testCanIgnoreCardinalityViolation() throws Exception {
 		Company aCompany = RDFMapper.builder()
-		                            .set(MappingOptions.IGNORE_ARITY_VIOLATIONS, true)
+		                            .set(MappingOptions.IGNORE_CARDINALITY_VIOLATIONS, true)
 		                            .build()
 		                            .readValue(Graphs.of(Files3.classPath("/data/company-card.nt")), Company.class);
 
