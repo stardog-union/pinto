@@ -459,6 +459,23 @@ public class RDFMapperTests {
 		                            aGraph));
 	}
 
+	@Test(expected=RDFMappingException.class)
+	public void testCardinalityViolationFatal() throws Exception {
+		RDFMapper.create().readValue(Graphs.of(Files3.classPath("/data/company-card.nt")), Company.class);
+	}
+
+	@Test
+	public void testCanIgnoreCardinalityViolation() throws Exception {
+		Company aCompany = RDFMapper.builder()
+		                            .set(MappingOptions.IGNORE_ARITY_VIOLATIONS, true)
+		                            .build()
+		                            .readValue(Graphs.of(Files3.classPath("/data/company-card.nt")), Company.class);
+
+		assertEquals("http://clarkparsia.com", aCompany.getWebsite());
+
+		assertTrue(aCompany.getName().equals("Complexible") || aCompany.getName().equals("Clark & Parsia"));
+	}
+
 	@Test
 	public void testAnnotationsWithInvalidURI() throws Exception {
 		BadCompany aCompany = new BadCompany();
