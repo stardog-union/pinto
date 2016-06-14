@@ -1,19 +1,19 @@
-_:node19hod2fpjx2 <tag:complexible:pinto:_key> "bob"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node19hod2fpjx2 <tag:complexible:pinto:_value> <tag:complexible:pinto:064acf725d594ec0507d889f43af030c> .
-<tag:complexible:pinto:064acf725d594ec0507d889f43af030c> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
-<tag:complexible:pinto:064acf725d594ec0507d889f43af030c> <tag:complexible:pinto:name> "Bob the tester"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node19hod2fpjx1 <tag:complexible:pinto:_hasEntry> _:node19hod2fpjx2 .
-_:node19hod2fpjx3 <tag:complexible:pinto:_key> "1"^^<http://www.w3.org/2001/XMLSchema#long> .
-_:node19hod2fpjx3 <tag:complexible:pinto:_value> "the size of something"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node19hod2fpjx1 <tag:complexible:pinto:_hasEntry> _:node19hod2fpjx3 .
-_:node19hod2fpjx4 <tag:complexible:pinto:_key> "2015-03-14T15:24:42.470-04:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
-_:node19hod2fpjx4 <tag:complexible:pinto:_value> "57.4"^^<http://www.w3.org/2001/XMLSchema#double> .
-_:node19hod2fpjx1 <tag:complexible:pinto:_hasEntry> _:node19hod2fpjx4 .
-_:node19hod2fpjx5 <tag:complexible:pinto:_key> <tag:complexible:pinto:bcc481f0329760f0b7dc4c9e66ef736d> .
-<tag:complexible:pinto:bcc481f0329760f0b7dc4c9e66ef736d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
-<tag:complexible:pinto:bcc481f0329760f0b7dc4c9e66ef736d> <tag:complexible:pinto:name> "another person"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node19hod2fpjx5 <tag:complexible:pinto:_value> <tag:complexible:pinto:24ce815accb7765d27194c94c45b74af> .
-<tag:complexible:pinto:24ce815accb7765d27194c94c45b74af> <urn:name> "The company"^^<http://www.w3.org/2001/XMLSchema#string> .
+_:node1al851hjjx2 <tag:complexible:pinto:_key> "bob" .
+_:node1al851hjjx2 <tag:complexible:pinto:_value> <tag:complexible:pinto:99bc1dd4c2311bb01fed975a750e4231> .
+<tag:complexible:pinto:99bc1dd4c2311bb01fed975a750e4231> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
+<tag:complexible:pinto:99bc1dd4c2311bb01fed975a750e4231> <tag:complexible:pinto:name> "Bob the tester" .
+_:node1al851hjjx1 <tag:complexible:pinto:_hasEntry> _:node1al851hjjx2 .
+_:node1al851hjjx3 <tag:complexible:pinto:_key> "1"^^<http://www.w3.org/2001/XMLSchema#long> .
+_:node1al851hjjx3 <tag:complexible:pinto:_value> "the size of something" .
+_:node1al851hjjx1 <tag:complexible:pinto:_hasEntry> _:node1al851hjjx3 .
+_:node1al851hjjx4 <tag:complexible:pinto:_key> "2015-03-14T15:24:42.470-04:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+_:node1al851hjjx4 <tag:complexible:pinto:_value> "57.4"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:node1al851hjjx1 <tag:complexible:pinto:_hasEntry> _:node1al851hjjx4 .
+_:node1al851hjjx5 <tag:complexible:pinto:_key> <tag:complexible:pinto:56dfd8dfbff0858f427e991311a840cf> .
+<tag:complexible:pinto:56dfd8dfbff0858f427e991311a840cf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
+<tag:complexible:pinto:56dfd8dfbff0858f427e991311a840cf> <tag:complexible:pinto:name> "another person" .
+_:node1al851hjjx5 <tag:complexible:pinto:_value> <tag:complexible:pinto:24ce815accb7765d27194c94c45b74af> .
+<tag:complexible:pinto:24ce815accb7765d27194c94c45b74af> <urn:name> "The company" .
 <tag:complexible:pinto:24ce815accb7765d27194c94c45b74af> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <urn:Company> .
-_:node19hod2fpjx1 <tag:complexible:pinto:_hasEntry> _:node19hod2fpjx5 .
-<tag:complexible:pinto:92e266ff9b784d461ea07bd985559056> <tag:complexible:pinto:map> _:node19hod2fpjx1 .
+_:node1al851hjjx1 <tag:complexible:pinto:_hasEntry> _:node1al851hjjx5 .
+<tag:complexible:pinto:06f95e70fea33fcd99e6804b02f96cc9> <tag:complexible:pinto:map> _:node1al851hjjx1 .

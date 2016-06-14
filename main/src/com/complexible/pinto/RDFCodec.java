@@ -16,7 +16,7 @@
 package com.complexible.pinto;
 
 import com.complexible.common.openrdf.util.ResourceBuilder;
-import org.openrdf.model.Graph;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 
 /**
@@ -28,14 +28,14 @@ import org.openrdf.model.Resource;
  *
  * @author  Michael Grove
  * @since   1.0
- * @version 1.0
+ * @version 2.0
  */
 public interface RDFCodec<T> {
 
 	/**
 	 * Serialize the given value as RDF.  This should produce a round-trippable serialization, that is, the output of
 	 * this method should return an object that is {@code .equals} to the result of passing the RDF to
-	 * {@link #readValue(Graph, Resource)}.
+	 * {@link #readValue(Model, Resource)}.
 	 *
 	 * @param theValue  the value to serialize
 	 *
@@ -52,5 +52,5 @@ public interface RDFCodec<T> {
 	 *
 	 * @throws RDFMappingException if there is an error while deserializing
 	 */
-	public T readValue(final Graph theGraph, final Resource theObj);
+	public T readValue(final Model theGraph, final Resource theObj);
 }

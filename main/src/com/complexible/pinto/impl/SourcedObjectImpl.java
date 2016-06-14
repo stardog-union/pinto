@@ -16,23 +16,23 @@
 package com.complexible.pinto.impl;
 
 import com.complexible.pinto.SourcedObject;
-import org.openrdf.model.Graph;
+import org.openrdf.model.Model;
 
 /**
  * <p>Default implementation of {@link SourcedObject}</p>
  *
  * @author  Michael Grove
  * @since   1.0
- * @version 1.0
+ * @version 2.0
  */
 public final class SourcedObjectImpl implements SourcedObject {
-	private Graph mGraph;
+	private Model mGraph;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Graph getSourceGraph() {
+	public Model getSourceGraph() {
 		return mGraph;
 	}
 
@@ -40,7 +40,7 @@ public final class SourcedObjectImpl implements SourcedObject {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSourceGraph(final Graph theGraph) {
+	public void setSourceGraph(final Model theGraph) {
 		mGraph = theGraph;
 	}
 }

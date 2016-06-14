@@ -4,7 +4,7 @@
 
 Pinto is a Java framework for transforming Java beans into RDF (and back).
 
-The current version is 1.0.1 as of 2015-04-13.  We're using [git flow](http://nvie.com/posts/a-successful-git-branching-model/)
+The current version is 2.0 as of 2016-06-14.  We're using [git flow](http://nvie.com/posts/a-successful-git-branching-model/)
 for development.
 
 Inspired by [Jackson](https://github.com/FasterXML/jackson) and [Empire](http://github.com/mhgrove/Empire), it aims to
