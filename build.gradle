@@ -27,7 +27,7 @@ sourceSets {
 }
 
 group = "com.complexible.pinto"
-version = "2.0"
+version = "2.0.1-SNAPSHOT"
 
 ext {
 	projectDescription = "Pinto: A lightweight framework for mapping Java Beans into RDF and back again"
