@@ -1,7 +1,7 @@
-<tag:complexible:pinto:fe0fe12ccf44774cfc76fc917750b2b3> <tag:complexible:pinto:name> "Earl Weaver"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:1792529cbba8c3fe944e0c12ca7bfd48> <tag:complexible:pinto:name> "Brooks Robinson"^^<http://www.w3.org/2001/XMLSchema#string> .
-_:node19ftgq5iex1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <tag:complexible:pinto:fe0fe12ccf44774cfc76fc917750b2b3> .
-_:node19ftgq5iex1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node19ftgq5iex2 .
-_:node19ftgq5iex2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <tag:complexible:pinto:1792529cbba8c3fe944e0c12ca7bfd48> .
-_:node19ftgq5iex2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
-<tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed> <tag:complexible:pinto:collection> _:node19ftgq5iex1 .
+<tag:complexible:pinto:5498838e539476a7a8ef09955db7da84> <tag:complexible:pinto:name> "Earl Weaver" .
+<tag:complexible:pinto:266770026973436947d5b2452918ab6d> <tag:complexible:pinto:name> "Brooks Robinson" .
+_:node1al84kkccx1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <tag:complexible:pinto:5498838e539476a7a8ef09955db7da84> .
+_:node1al84kkccx1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:node1al84kkccx2 .
+_:node1al84kkccx2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <tag:complexible:pinto:266770026973436947d5b2452918ab6d> .
+_:node1al84kkccx2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed> <tag:complexible:pinto:collection> _:node1al84kkccx1 .

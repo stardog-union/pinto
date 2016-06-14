@@ -18,16 +18,15 @@ package com.complexible.common.reflect;
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * <p>Utility for working with Methods via Java reflect</p>
  *
  * @author  Michael Grove
  * @version 1.0
- * @since   1.0
+ * @since   2.0
  */
 public final class Methods {
 
@@ -42,12 +41,7 @@ public final class Methods {
 	 * @return              a predicate that will check a method for the annotation
 	 */
 	public static Predicate<Method> annotated(final Class<? extends Annotation> theAnnotation) {
-		return new Predicate<Method>() {
-			@Override
-			public boolean apply(final Method theInput) {
-				return theInput != null && theInput.getAnnotation(theAnnotation) != null;
-			}
-		};
+		return theInput -> theInput != null && theInput.getAnnotation(theAnnotation) != null;
 	}
 
 	/**
@@ -56,19 +50,16 @@ public final class Methods {
 	 * @return  property name function
 	 */
 	public static Function<Method, String> property() {
-		return new Function<Method, String>() {
-			@Override
-			public String apply(final Method input) {
-				int aLen = 0;
-				if (input.getName().startsWith("is")) {
-					aLen = 2;
-				}
-				else if (input.getName().startsWith("get") || input.getName().startsWith("set")) {
-					aLen = 3;
-				}
-
-				return Introspector.decapitalize(input.getName().substring(aLen));
+		return input -> {
+			int aLen = 0;
+			if (input.getName().startsWith("is")) {
+				aLen = 2;
 			}
+			else if (input.getName().startsWith("get") || input.getName().startsWith("set")) {
+				aLen = 3;
+			}
+
+			return Introspector.decapitalize(input.getName().substring(aLen));
 		};
 	}
 }

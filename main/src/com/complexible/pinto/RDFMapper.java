@@ -19,9 +19,9 @@ import com.complexible.common.base.Dates;
 import com.complexible.common.base.Option;
 import com.complexible.common.base.Options;
 import com.complexible.common.beans.Beans;
-import com.complexible.common.openrdf.model.Graphs;
+import com.complexible.common.openrdf.model.Models2;
 import com.complexible.common.openrdf.model.Statements;
-import com.complexible.common.openrdf.util.GraphBuilder;
+import com.complexible.common.openrdf.util.ModelBuilder;
 import com.complexible.common.openrdf.util.ResourceBuilder;
 import com.complexible.common.reflect.Classes;
 import com.complexible.common.reflect.Methods;
@@ -31,10 +31,7 @@ import com.complexible.pinto.annotations.RdfId;
 import com.complexible.pinto.annotations.RdfProperty;
 import com.complexible.pinto.annotations.RdfsClass;
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableBiMap;
@@ -49,16 +46,15 @@ import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.openrdf.model.Graph;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.util.GraphUtil;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
@@ -68,6 +64,7 @@ import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -76,23 +73,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * <p>Mapper for turning Java beans into RDF and RDF into Java beans.</p>
  *
  * @author  Michael Grove
  * @since   1.0
- * @version 1.0
+ * @version 2.0
  */
 public class RDFMapper {
 
@@ -101,23 +98,23 @@ public class RDFMapper {
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(RDFMapper.class);
 
-	private static final ImmutableSet<URI> INTEGER_TYPES = ImmutableSet.of(XMLSchema.INT, XMLSchema.INTEGER, XMLSchema.POSITIVE_INTEGER,
+	private static final ImmutableSet<IRI> INTEGER_TYPES = ImmutableSet.of(XMLSchema.INT, XMLSchema.INTEGER, XMLSchema.POSITIVE_INTEGER,
 	                                                               XMLSchema.NEGATIVE_INTEGER, XMLSchema.NON_NEGATIVE_INTEGER,
 	                                                               XMLSchema.NON_POSITIVE_INTEGER, XMLSchema.UNSIGNED_INT);
 
-	private static final ImmutableSet<URI> LONG_TYPES = ImmutableSet.of(XMLSchema.LONG, XMLSchema.UNSIGNED_LONG);
-	private static final ImmutableSet<URI> FLOAT_TYPES = ImmutableSet.of(XMLSchema.FLOAT, XMLSchema.DECIMAL);
-	private static final ImmutableSet<URI> SHORT_TYPES = ImmutableSet.of(XMLSchema.SHORT, XMLSchema.UNSIGNED_SHORT);
-	private static final ImmutableSet<URI> BYTE_TYPES = ImmutableSet.of(XMLSchema.BYTE, XMLSchema.UNSIGNED_BYTE);
+	private static final ImmutableSet<IRI> LONG_TYPES = ImmutableSet.of(XMLSchema.LONG, XMLSchema.UNSIGNED_LONG);
+	private static final ImmutableSet<IRI> FLOAT_TYPES = ImmutableSet.of(XMLSchema.FLOAT, XMLSchema.DECIMAL);
+	private static final ImmutableSet<IRI> SHORT_TYPES = ImmutableSet.of(XMLSchema.SHORT, XMLSchema.UNSIGNED_SHORT);
+	private static final ImmutableSet<IRI> BYTE_TYPES = ImmutableSet.of(XMLSchema.BYTE, XMLSchema.UNSIGNED_BYTE);
 
 	public static final String DEFAULT_NAMESPACE = "tag:complexible:pinto:";
 	public static final String DEFAULT_PREFIX = "";
 
-	public static final URI KEY = ValueFactoryImpl.getInstance().createURI(DEFAULT_NAMESPACE, "_key");
-	public static final URI VALUE = ValueFactoryImpl.getInstance().createURI(DEFAULT_NAMESPACE, "_value");
-	public static final URI HAS_ENTRY = ValueFactoryImpl.getInstance().createURI(DEFAULT_NAMESPACE, "_hasEntry");
+	public static final IRI KEY = SimpleValueFactory.getInstance().createIRI(DEFAULT_NAMESPACE, "_key");
+	public static final IRI VALUE = SimpleValueFactory.getInstance().createIRI(DEFAULT_NAMESPACE, "_value");
+	public static final IRI HAS_ENTRY = SimpleValueFactory.getInstance().createIRI(DEFAULT_NAMESPACE, "_hasEntry");
 
-	private final ImmutableBiMap<URI, Class> mMappings;
+	private final ImmutableBiMap<IRI, Class> mMappings;
 
 	private final ImmutableMap<Class<?>, Function<Object, Resource>> mIdFunctions;
 
@@ -137,7 +134,7 @@ public class RDFMapper {
 		PropertyUtils.addBeanIntrospector(new FluentPropertyBeanIntrospector());
 	}
 
-	private RDFMapper(final Map<URI, Class> theMappings,
+	private RDFMapper(final Map<IRI, Class> theMappings,
 	                  final Map<Class<?>, Function<Object, Resource>> theIdFunctions,
 	                  final ValueFactory theValueFactory,
 	                  final Map<String, String> theNamespaces,
@@ -169,7 +166,7 @@ public class RDFMapper {
 	/**
 	 * Read the object from the RDF.
 	 *
-	 * If there is more than one resource in the graph, you should use {@link #readValue(Graph, Class, Resource)} and
+	 * If there is more than one resource in the graph, you should use {@link #readValue(Model, Class, Resource)} and
 	 * specify the identifier of the object you wish to read.  Otherwise, an {@link RDFMappingException} will be thrown
 	 * to indicate that it's not clear what resource should be read.
 	 *
@@ -180,17 +177,17 @@ public class RDFMapper {
 	 * @throws RDFMappingException if the object could not be created
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T readValue(final Graph theGraph, final Class<T> theClass) {
+	public <T> T readValue(final Model theGraph, final Class<T> theClass) {
 		RDFCodec<T> aCodec = (RDFCodec<T>) mCodecs.get(theClass);
 
-		final Collection<Resource> aSubjects = Graphs.collect(theGraph, Statements.subjectOptional());
+		final Collection<Resource> aSubjects = theGraph.subjects();
 
 		if (aSubjects.size() > 1) {
 			throw new RDFMappingException("Multiple subjects found, need to specify the identifier of the object to create.");
 		}
 		else if (aSubjects.isEmpty()) {
 			return aCodec == null ? newInstance(theClass)
-			                      : aCodec.readValue(theGraph, ValueFactoryImpl.getInstance().createBNode());
+			                      : aCodec.readValue(theGraph, SimpleValueFactory.getInstance().createBNode());
 		}
 
 		final Resource aSubj = aSubjects.iterator().next();
@@ -218,13 +215,13 @@ public class RDFMapper {
 	 *
 	 * @param theGraph  the RDF
 	 * @param theClass  the type of the object to read
-	 * @param theObj    the identifer of the object to create
+	 * @param theObj    the identifier of the object to create
 	 *
 	 * @return          the object
 	 *
 	 * @throws RDFMappingException if the object could not be created
 	 */
-	public <T> T readValue(final Graph theGraph, final Class<T> theClass, final Resource theObj) {
+	public <T> T readValue(final Model theGraph, final Class<T> theClass, final Resource theObj) {
 		if (theClass == null) {
 			return null;
 		}
@@ -236,10 +233,9 @@ public class RDFMapper {
 				continue;
 			}
 
-			final URI aProperty = getProperty(aDescriptor);
+			final IRI aProperty = getProperty(aDescriptor);
 
-			Collection<Value> aValues = Graphs.collect(filter(theGraph, Predicates.and(Statements.subjectIs(theObj), Statements.predicateIs(aProperty))),
-			                                           Statements.objectOptional());
+			Collection<Value> aValues = theGraph.stream().filter(Statements.subjectIs(theObj).and(Statements.predicateIs(aProperty))).map(Statement::getObject).collect(Collectors.toList());
 
 			Object aObj;
 
@@ -256,15 +252,17 @@ public class RDFMapper {
 				// here, and this will cover one or more list assertions as well as multiple property assertions forming
 				// the list as well as the mix of both
 				for (Value aValue : aValues) {
-					if (aValue instanceof Resource && Graphs.isList(theGraph, (Resource) aValue)) {
-						aElems.addAll(Graphs2.asList(theGraph, (Resource) aValue));
+					if (aValue instanceof Resource && Models2.isList(theGraph, (Resource) aValue)) {
+						aElems.addAll(Models3.asList(theGraph, (Resource) aValue));
 					}
 					else {
 						aElems.add(aValue);
 					}
 				}
 
-				Iterables.addAll(aIterable, transform(aElems, toObject(theGraph, aDescriptor)));
+				aElems.stream()
+				      .map(toObject(theGraph, aDescriptor)::apply)
+				      .forEach(aIterable::add);
 
 				aObj = aIterable;
 			}
@@ -284,9 +282,10 @@ public class RDFMapper {
 
 				final Map aMap = mMapFactory.create(aDescriptor);
 
-				for (Value aMapEntry : GraphUtil.getObjects(theGraph, (Resource) aPropValue, HAS_ENTRY)) {
-					Value aKey = Graphs.getObject(theGraph, (Resource) aMapEntry, KEY).get();
-					Value aValue = Graphs.getObject(theGraph, (Resource) aMapEntry, VALUE).get();
+				for (Value aMapEntry : theGraph.filter((Resource) aPropValue, HAS_ENTRY, null).objects()) {
+					final Value aKey = theGraph.stream().filter(Statements.subjectIs((Resource) aMapEntry).and(Statements.predicateIs(KEY))).map(Statement::getObject).findFirst().orElse(null);
+					final Value aValue = theGraph.stream().filter(Statements.subjectIs((Resource) aMapEntry).and(Statements.predicateIs(VALUE))).map(Statement::getObject).findFirst().orElse(null);
+
 					Object aKeyObj = null, aValueObj = null;
 
 					if (aKey instanceof Literal) {
@@ -346,8 +345,8 @@ public class RDFMapper {
 		return aInst;
 	}
 
-	private Class type(final Graph theGraph, final Resource theValue) {
-		final Iterable<Resource> aTypes = Graphs.getTypes(theGraph, theValue);
+	private Class type(final Model theGraph, final Resource theValue) {
+		final Iterable<Resource> aTypes = Models2.getTypes(theGraph, theValue);
 		for (Resource aType : aTypes) {
 			final Class aClass = mMappings.get(aType);
 			if (aClass != null){
@@ -358,13 +357,8 @@ public class RDFMapper {
 		return null;
 	}
 
-	private Function<Value, Object> toObject(final Graph theGraph, final PropertyDescriptor theDescriptor) {
-		return new Function<Value, Object>() {
-			@Override
-			public Object apply(final Value theInput) {
-				return valueToObject(theInput, theGraph, theDescriptor);
-			}
-		};
+	private Function<Value, Object> toObject(final Model theGraph, final PropertyDescriptor theDescriptor) {
+		return theInput -> valueToObject(theInput, theGraph, theDescriptor);
 	}
 
 	private String expand(final String theValue) {
@@ -388,12 +382,12 @@ public class RDFMapper {
 	 * @param theValue  the value to write
 	 * @return          the value serialized as RDF
 	 *
-	 * @throws  UnidentifiableObjectException   thrown when an rdf:ID cannot be created for {@link theValue}
+	 * @throws  UnidentifiableObjectException   thrown when an rdf:ID cannot be created for {@code theValue}
 	 * @throws  RDFMappingException             indicates a general error, such as issues transforming a property value
 	 *                                          into RDF.
 	 */
-	public <T> Graph writeValue(final T theValue) {
-		return write(theValue).graph();
+	public <T> Model writeValue(final T theValue) {
+		return write(theValue).model();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -406,10 +400,10 @@ public class RDFMapper {
 
 		final Resource aId = id(theValue);
 
-		final URI aType = getType(theValue);
+		final IRI aType = getType(theValue);
 
 		try {
-			final GraphBuilder aGraph = new GraphBuilder(mValueFactory);
+			final ModelBuilder aGraph = new ModelBuilder(mValueFactory);
 
 			ResourceBuilder aBuilder = aGraph.instance(aType, aId);
 
@@ -420,7 +414,7 @@ public class RDFMapper {
 					continue;
 				}
 
-				final URI aProperty = getProperty(aDescriptor);
+				final IRI aProperty = getProperty(aDescriptor);
 
 				if (aProperty == null) {
 					continue;
@@ -438,17 +432,16 @@ public class RDFMapper {
 
 			return aBuilder;
 		}
-//		catch (IllegalAccessException | InvocationTargetException  | NoSuchMethodException e) {
-		catch (Exception e) {
+		catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			Throwables.propagateIfInstanceOf(e, RDFMappingException.class);
 			throw new RDFMappingException(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void setValue(final GraphBuilder theGraph, final ResourceBuilder theBuilder,
+	private void setValue(final ModelBuilder theGraph, final ResourceBuilder theBuilder,
 	                      final PropertyDescriptor thePropertyDescriptor,
-	                      final URI theProperty, final Object theObj) {
+	                      final IRI theProperty, final Object theObj) {
 
 		if (Beans.isPrimitive(theObj)) {
 			theBuilder.addProperty(theProperty, toLiteral(theObj, getPropertyAnnotation(thePropertyDescriptor)));
@@ -469,12 +462,12 @@ public class RDFMapper {
 					else {
 						ResourceBuilder aIndividual = write(aVal);
 						aList.add(aIndividual.getResource());
-						theBuilder.graph().addAll(aIndividual.graph());
+						theBuilder.model().addAll(aIndividual.model());
 					}
 				}
 
 				if (!aList.isEmpty()) {
-					theBuilder.addProperty(theProperty, Graphs2.toList(aList, theBuilder.graph()));
+					theBuilder.addProperty(theProperty, Models3.toList(aList, theBuilder.model()));
 				}
 			}
 			else {
@@ -517,15 +510,15 @@ public class RDFMapper {
 		}
 	}
 
-	private URI enumToURI(final Enum theEnum) {
+	private IRI enumToURI(final Enum theEnum) {
 		try {
 			final Iri aAnnotation = theEnum.getClass().getField(theEnum.name()).getAnnotation(Iri.class);
 
 			if (aAnnotation != null) {
-				return uri(aAnnotation.value());
+				return iri(aAnnotation.value());
 			}
 			else {
-				return mValueFactory.createURI(mDefaultNamespace, theEnum.name());
+				return mValueFactory.createIRI(mDefaultNamespace, theEnum.name());
 			}
 		}
 		catch (NoSuchFieldException e) {
@@ -543,12 +536,12 @@ public class RDFMapper {
 		return aProperty != null && aProperty.isList();
 	}
 
-	private URI getType(final Object theObj) {
+	private IRI getType(final Object theObj) {
 		return getType(theObj.getClass());
 	}
 
-	private URI getType(final Class<?> theClass) {
-		URI aType = mMappings.inverse().get(theClass);
+	private IRI getType(final Class<?> theClass) {
+		IRI aType = mMappings.inverse().get(theClass);
 
 		if (aType != null) {
 			return aType;
@@ -557,16 +550,16 @@ public class RDFMapper {
 		RdfsClass aClass = theClass.getAnnotation(RdfsClass.class);
 
 		if (aClass != null) {
-			return uri(aClass.value());
+			return iri(aClass.value());
 		}
 
 		return null;
 	}
 
-	private Object valueToObject(final Value theValue, final Graph theGraph, final PropertyDescriptor theDescriptor) {
+	private Object valueToObject(final Value theValue, final Model theGraph, final PropertyDescriptor theDescriptor) {
 		if (theValue instanceof Literal) {
 			final Literal aLit = (Literal) theValue;
-			final URI aDatatype = aLit.getDatatype() != null ? aLit.getDatatype() : null;
+			final IRI aDatatype = aLit.getDatatype() != null ? aLit.getDatatype() : null;
 
 			if (aDatatype == null || XMLSchema.STRING.equals(aDatatype) || RDFS.LITERAL.equals(aDatatype)) {
 				String aStr = aLit.getLabel();
@@ -624,7 +617,7 @@ public class RDFMapper {
 			}
 		}
 		else if (theDescriptor != null && Enum.class.isAssignableFrom(theDescriptor.getPropertyType())) {
-			URI aURI = (URI) theValue;
+			IRI aURI = (IRI) theValue;
 			Object[] aEnums = theDescriptor.getPropertyType().getEnumConstants();
 			for (Object aObj : aEnums) {
 				if (((Enum) aObj).name().equals(aURI.getLocalName())) {
@@ -634,7 +627,7 @@ public class RDFMapper {
 
 			for (Field aField : theDescriptor.getPropertyType().getFields()) {
 				Iri aAnnotation = aField.getAnnotation(Iri.class);
-				if (aAnnotation != null && aURI.equals(uri(aAnnotation.value()))) {
+				if (aAnnotation != null && aURI.equals(iri(aAnnotation.value()))) {
 					for (Object aObj : aEnums) {
 						if (((Enum) aObj).name().equals(aField.getName())) {
 							return aObj;
@@ -667,7 +660,7 @@ public class RDFMapper {
 		}
 	}
 
-	private Class pinpointClass(final Graph theGraph, final Resource theResource, final PropertyDescriptor theDescriptor) {
+	private Class pinpointClass(final Model theGraph, final Resource theResource, final PropertyDescriptor theDescriptor) {
 		Class aClass = theDescriptor.getPropertyType();
 
 		if (Collection.class.isAssignableFrom(aClass)) {
@@ -734,7 +727,7 @@ public class RDFMapper {
 		else if (!Classes.isInstantiable(aClass) || !Classes.hasDefaultConstructor(aClass)) {
 
 			Class<?> aCurr = null;
-			final Iterable<Resource> aRdfTypes = Graphs.getTypes(theGraph, theResource);
+			final Iterable<Resource> aRdfTypes = Models2.getTypes(theGraph, theResource);
 			for (Resource aType : aRdfTypes) {
 				Class<?> aMappedClass = mMappings.get(aType);
 				if (aMappedClass != null) {
@@ -758,7 +751,7 @@ public class RDFMapper {
 
 	private Value toLiteral(final Object theObj, final RdfProperty theAnnotation) {
 		if (theAnnotation != null && !Strings.isNullOrEmpty(theAnnotation.datatype())) {
-			final URI aURI = uri(theAnnotation.datatype());
+			final IRI aURI = iri(theAnnotation.datatype());
 
 			if (aURI == null) {
 				return null;
@@ -812,10 +805,10 @@ public class RDFMapper {
 			return null;
 		}
 
-		if (Methods.annotated(RdfProperty.class).apply(thePropertyDescriptor.getReadMethod())) {
+		if (Methods.annotated(RdfProperty.class).test(thePropertyDescriptor.getReadMethod())) {
 			aMethod = thePropertyDescriptor.getReadMethod();
 		}
-		else if (Methods.annotated(RdfProperty.class).apply(thePropertyDescriptor.getWriteMethod())) {
+		else if (Methods.annotated(RdfProperty.class).test(thePropertyDescriptor.getWriteMethod())) {
 			aMethod = thePropertyDescriptor.getWriteMethod();
 		}
 
@@ -827,14 +820,14 @@ public class RDFMapper {
 		}
 	}
 
-	private URI getProperty(final PropertyDescriptor thePropertyDescriptor) {
+	private IRI getProperty(final PropertyDescriptor thePropertyDescriptor) {
 		final RdfProperty aAnnotation = getPropertyAnnotation(thePropertyDescriptor);
 
 		if (aAnnotation == null || Strings.isNullOrEmpty(aAnnotation.value())) {
-			return mValueFactory.createURI(mDefaultNamespace + thePropertyDescriptor.getName());
+			return mValueFactory.createIRI(mDefaultNamespace + thePropertyDescriptor.getName());
 		}
 		else {
-			return uri(aAnnotation.value());
+			return iri(aAnnotation.value());
 		}
 	}
 
@@ -847,13 +840,13 @@ public class RDFMapper {
 	 * @throws RDFMappingException  if {@link MappingOptions#IGNORE_INVALID_ANNOTATIONS} is true and the URI/qname
 	 *                              is not valid.
 	 */
-	private URI uri(final String theURI) {
+	private IRI iri(final String theURI) {
 		try {
 			if (Strings.isNullOrEmpty(theURI)) {
 				return null;
 			}
 
-			return mValueFactory.createURI(expand(theURI));
+			return mValueFactory.createIRI(expand(theURI));
 		}
 		catch (IllegalArgumentException e) {
 			final String aMsg = String.format("An invalid uri \"%s\" was used, ignoring property with annotation", theURI);
@@ -882,8 +875,10 @@ public class RDFMapper {
 			}
 		}
 
-		final Iterable<String> aProps = transform(filter(Beans.getDeclaredMethods(theT.getClass()),
-		                                                 Methods.annotated(RdfId.class)), Methods.property());
+		final Iterable<String> aProps = () -> StreamSupport.stream(Beans.getDeclaredMethods(theT.getClass()).spliterator(), false)
+		                                                   .filter(Methods.annotated(RdfId.class))
+		                                                   .map(Methods.property())
+		                                                   .iterator();
 
 		// Sort the properties so they're always iterated over in the same order.  since the hash is sensitive
 		// to iteration order, the same inputs but in a different order yields a different hashed value, and thus
@@ -908,7 +903,7 @@ public class RDFMapper {
 				}
 			}
 
-			return mValueFactory.createURI(mDefaultNamespace + aFunc.hash().toString());
+			return mValueFactory.createIRI(mDefaultNamespace + aFunc.hash().toString());
 		}
 
 		for (Map.Entry<Class<?>, Function<Object, Resource>> aEntry : mIdFunctions.entrySet()) {
@@ -924,7 +919,7 @@ public class RDFMapper {
 			                                                      "to the mapper.", theT));
 		}
 		else {
-			return mValueFactory.createURI(mDefaultNamespace + Hashing.md5().newHasher()
+			return mValueFactory.createIRI(mDefaultNamespace + Hashing.md5().newHasher()
 			                                                          .putString(theT.toString(), Charsets.UTF_8)
 			                                                          .hash().toString());
 		}
@@ -956,11 +951,11 @@ public class RDFMapper {
 	public static class Builder {
 		private static final Pattern PREFIX_REGEX = Pattern.compile("^([a-z]|[A-Z]|_){1}(\\w|-|\\.)*$");
 
-		private final Map<URI, Class> mMappings = Maps.newHashMap();
+		private final Map<IRI, Class> mMappings = Maps.newHashMap();
 
 		private final Map<Class<?>, Function<Object, Resource>> mIdFunctions = Maps.newHashMap();
 
-		private ValueFactory mValueFactory = ValueFactoryImpl.getInstance();
+		private ValueFactory mValueFactory = SimpleValueFactory.getInstance();
 
 		private Options mOptions = Options.combine(MappingOptions.DEFAULTS);
 
@@ -1085,7 +1080,7 @@ public class RDFMapper {
 		 * @param theClass      the corresponding Java class
 		 * @return              this builder
 		 */
-		public Builder map(final URI theClassURI, final Class theClass) {
+		public Builder map(final IRI theClassURI, final Class theClass) {
 			Preconditions.checkNotNull(theClassURI);
 			Preconditions.checkNotNull(theClass);
 
@@ -1122,103 +1117,108 @@ public class RDFMapper {
 		}
 	}
 
-	// todo: move to openrdf-utils
-	private static final class Graphs2 {
-		private static final Graph EMPTY_GRAPH = new Graph() {
-			@Override
-			public int size() {
-				return 0;
-			}
-
-			@Override
-			public boolean isEmpty() {
-				return true;
-			}
-
-			@Override
-			public boolean contains(final Object o) {
-				return false;
-			}
-
-			@Override
-			public Iterator<Statement> iterator() {
-				return ImmutableSet.<Statement>of().iterator();
-			}
-
-			@Override
-			public Object[] toArray() {
-				return new Object[0];
-			}
-
-			@Override
-			public <T> T[] toArray(final T[] a) {
-				return a;
-			}
-
-			@Override
-			public boolean add(final Statement e) {
-				return false;
-			}
-
-			@Override
-			public boolean remove(final Object o) {
-				return false;
-			}
-
-			@Override
-			public boolean containsAll(final Collection<?> c) {
-				return false;
-			}
-
-			@Override
-			public boolean addAll(final Collection<? extends Statement> c) {
-				return false;
-			}
-
-			@Override
-			public boolean removeAll(final Collection<?> c) {
-				return false;
-			}
-
-			@Override
-			public boolean retainAll(final Collection<?> c) {
-				return false;
-			}
-
-			@Override
-			public void clear() {
-
-			}
-
-			@Override
-			public ValueFactory getValueFactory() {
-				return ValueFactoryImpl.getInstance();
-			}
-
-			@Override
-			public boolean add(final Resource subj, final URI pred, final Value obj, final Resource... contexts) {
-				return false;
-			}
-
-			@Override
-			public Iterator<Statement> match(final Resource subj, final URI pred, final Value obj,
-			                                 final Resource... contexts) {
-				return ImmutableSet.<Statement>of().iterator();
-			}
-		};
-
-		public static Graph emptyGraph() {
-			return EMPTY_GRAPH;
-		}
-
-		public static Resource toList(final List<Value> theList, final Graph theGraph) {
-			Resource aCurr = ValueFactoryImpl.getInstance().createBNode();
+//	// todo: move to openrdf-utils
+	private static final class Models3 {
+//		private static final Model EMPTY_GRAPH = new Model() {
+//			@Override
+//			public int size() {
+//				return 0;
+//			}
+//
+//			@Override
+//			public boolean isEmpty() {
+//				return true;
+//			}
+//
+//			@Override
+//			public boolean contains(final Object o) {
+//				return false;
+//			}
+//
+//			@Override
+//			public Iterator<Statement> iterator() {
+//				return ImmutableSet.<Statement>of().iterator();
+//			}
+//
+//			@Override
+//			public Object[] toArray() {
+//				return new Object[0];
+//			}
+//
+//			@Override
+//			public <T> T[] toArray(final T[] a) {
+//				return a;
+//			}
+//
+//			@Override
+//			public boolean add(final Statement e) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean remove(final Object o) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean containsAll(final Collection<?> c) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean addAll(final Collection<? extends Statement> c) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean removeAll(final Collection<?> c) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean retainAll(final Collection<?> c) {
+//				return false;
+//			}
+//
+//			@Override
+//			public void clear() {
+//
+//			}
+//
+//			@Override
+//			public ValueFactory getValueFactory() {
+//				return ValueFactoryImpl.getInstance();
+//			}
+//
+//			@Override
+//			public boolean add(final Resource subj, final IRI pred, final Value obj, final Resource... contexts) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean remove(final Resource subj, final IRI pred, final Value obj, final Resource... contexts) {
+//				return false;
+//			}
+//
+//			@Override
+//			public Iterator<Statement> match(final Resource subj, final IRI pred, final Value obj,
+//			                                 final Resource... contexts) {
+//				return ImmutableSet.<Statement>of().iterator();
+//			}
+//		};
+//
+//		public static Graph emptyGraph() {
+//			return EMPTY_GRAPH;
+//		}
+//
+		public static Resource toList(final List<Value> theList, final Model theGraph) {
+			Resource aCurr = SimpleValueFactory.getInstance().createBNode();
 
 			int i = 0;
 			final Resource aHead = aCurr;
 
 			for (Value r : theList) {
-				Resource aNext = ValueFactoryImpl.getInstance().createBNode();
+				Resource aNext = SimpleValueFactory.getInstance().createBNode();
 				theGraph.add(aCurr, RDF.FIRST, r);
 				theGraph.add(aCurr, RDF.REST, ++i < theList.size() ? aNext : RDF.NIL);
 				aCurr = aNext;
@@ -1226,34 +1226,35 @@ public class RDFMapper {
 
 			return aHead;
 		}
-		public static List<Value> asList(final Graph theGraph, final Resource theRes) {
-				List<Value> aList = Lists.newArrayList();
 
-				Resource aListRes = theRes;
+	public static List<Value> asList(final Model theGraph, final Resource theRes) {
+		List<Value> aList = Lists.newArrayList();
 
-				while (aListRes != null) {
+		Resource aListRes = theRes;
 
-					Optional<Value> aFirst = Graphs.getObject(theGraph, aListRes, RDF.FIRST);
-					Optional<Resource> aRest = Graphs.getResource(theGraph, aListRes, RDF.REST);
+		while (aListRes != null) {
 
-					if (aFirst.isPresent()) {
-						aList.add(aFirst.get());
-					}
+			Optional<Value> aFirst = theGraph.stream().filter(Statements.subjectIs(aListRes).and(Statements.predicateIs(RDF.FIRST))).map(Statement::getObject).findFirst();
+			Optional<Resource> aRest = theGraph.stream().filter(Statements.subjectIs(aListRes).and(Statements.predicateIs(RDF.REST))).map(Statement::getObject).map(Resource.class::cast).findFirst();
 
-					if (aRest.or(RDF.NIL).equals(RDF.NIL)) {
-						aListRes = null;
-					}
-					else {
-						aListRes = aRest.get();
-					}
-				}
-
-				return aList;
+			if (aFirst.isPresent()) {
+				aList.add(aFirst.get());
 			}
+
+			if (aRest.orElse(RDF.NIL).equals(RDF.NIL)) {
+				aListRes = null;
+			}
+			else {
+				aListRes = aRest.get();
+			}
+		}
+
+		return aList;
 	}
+}
 
 	/**
-	 * <p>A factory for creating instances of {@link Collection} when {@link #readValue(Graph, Class) reading} an object.</p>
+	 * <p>A factory for creating instances of {@link Collection} when {@link #readValue(Model, Class) reading} an object.</p>
 	 *
 	 * @author  Michael Grove
 	 * @since   1.0
@@ -1266,7 +1267,7 @@ public class RDFMapper {
 	}
 
 	/**
-	 * <p>A factory for creating instances of {@link Map} when {@link #readValue(Graph, Class) reading} an object.</p>
+	 * <p>A factory for creating instances of {@link Map} when {@link #readValue(Model, Class) reading} an object.</p>
 	 *
 	 * @author  Michael Grove
 	 * @since   1.0

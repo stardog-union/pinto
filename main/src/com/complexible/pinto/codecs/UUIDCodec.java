@@ -15,16 +15,16 @@
 
 package com.complexible.pinto.codecs;
 
-import com.complexible.common.openrdf.model.Graphs;
+import com.complexible.common.openrdf.model.Models2;
 import com.complexible.common.openrdf.util.ResourceBuilder;
 import com.complexible.pinto.RDFCodec;
-import com.google.common.base.Optional;
-import org.openrdf.model.Graph;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.impl.SimpleValueFactory;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -32,30 +32,30 @@ import java.util.UUID;
  *
  * @author  Michael Grove
  * @since   1.0
- * @version 1.0
+ * @version 2.0
  */
 public enum UUIDCodec implements RDFCodec<UUID> {
 	Instance;
 
-	public static final URI TYPE = ValueFactoryImpl.getInstance().createURI("tag:java.util.UUID");
-	public static final URI PROPERTY = ValueFactoryImpl.getInstance().createURI("tag:java.util.UUID:uuid");
+	public static final IRI TYPE = SimpleValueFactory.getInstance().createIRI("tag:java.util.UUID");
+	public static final IRI PROPERTY = SimpleValueFactory.getInstance().createIRI("tag:java.util.UUID:uuid");
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public ResourceBuilder writeValue(final UUID theValue) {
-		return new ResourceBuilder(ValueFactoryImpl.getInstance().createBNode())
+		return new ResourceBuilder(SimpleValueFactory.getInstance().createBNode())
 				.addType(TYPE)
-				.addProperty(PROPERTY, ValueFactoryImpl.getInstance().createLiteral(theValue.toString()));
+				.addProperty(PROPERTY, SimpleValueFactory.getInstance().createLiteral(theValue.toString()));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UUID readValue(final Graph theGraph, final Resource theObj) {
-		final Optional<Value> aObject = Graphs.getObject(theGraph, theObj, PROPERTY);
+	public UUID readValue(final Model theGraph, final Resource theObj) {
+		final Optional<Value> aObject = Models2.getObject(theGraph, theObj, PROPERTY);
 
 		if (aObject.isPresent()) {
 			return UUID.fromString(aObject.get().stringValue());

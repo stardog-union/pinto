@@ -15,7 +15,8 @@
 
 package com.complexible.pinto;
 
-import com.complexible.common.openrdf.model.Graphs;
+import com.complexible.common.openrdf.model.ModelIO;
+import com.complexible.common.openrdf.model.Models2;
 import com.complexible.common.openrdf.model.Statements;
 import com.complexible.common.openrdf.vocabulary.FOAF;
 import com.complexible.pinto.annotations.Iri;
@@ -25,22 +26,19 @@ import com.complexible.pinto.annotations.RdfsClass;
 import com.complexible.pinto.codecs.UUIDCodec;
 import com.complexible.pinto.impl.IdentifableImpl;
 import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.Hashing;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.model.Graph;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.util.ModelUtil;
+import org.openrdf.model.impl.SimpleValueFactory;
+import org.openrdf.model.util.Models;
 import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.rio.RDFFormat;
 
 import java.io.File;
 import java.net.URI;
@@ -50,6 +48,8 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.UUID;
@@ -83,18 +83,18 @@ public class RDFMapperTests {
 		aObj.setFloat(4.5f);
 		aObj.setDouble(20.22);
 		aObj.setChar('o');
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:3d1c9ece37c3f9ee6068440cf9a383cc"));
 
-		Graph aGraph = aMapper.writeValue(aObj);
+		Model aGraph = aMapper.writeValue(aObj);
 
-		Graph aExpected = Graphs.of(new File(getClass().getResource("/data/primitives.nt").toURI()));
+		Model aExpected = ModelIO.read(new File(getClass().getResource("/data/primitives.nt").toURI()).toPath());
 
-		assertTrue(ModelUtil.equals(aGraph, aExpected));
+		assertTrue(Models.isomorphic(aGraph, aExpected));
 	}
 
 	@Test
 	public void testReadPrimitives() throws Exception {
-		Graph aGraph = Graphs.of(new File(getClass().getResource("/data/primitives.nt").toURI()));
+		Model aGraph = ModelIO.read(new File(getClass().getResource("/data/primitives.nt").toURI()).toPath());
 
 		RDFMapper aMapper = RDFMapper.create();
 
@@ -125,10 +125,10 @@ public class RDFMapperTests {
 		aExpected.setChild(aChild);
 		aExpected.setString("class with mixed");
 
-		Graph aGraph = Graphs.of(new File(getClass().getResource("/data/mixed.nt").toURI()));
+		Model aGraph = ModelIO.read(new File(getClass().getResource("/data/mixed.nt").toURI()).toPath());
 
 		final ClassWithMixed aResult = RDFMapper.create().readValue(aGraph, ClassWithMixed.class,
-		                                                            ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:45ad04336c95c0be6bba90e4b663da4d"));
+		                                                            SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:45ad04336c95c0be6bba90e4b663da4d"));
 
 		assertEquals(aExpected, aResult);
 	}
@@ -146,13 +146,13 @@ public class RDFMapperTests {
 		ClassWithMixed aObj = new ClassWithMixed();
 		aObj.setChild(aChild);
 		aObj.setString("class with mixed");
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:45ad04336c95c0be6bba90e4b663da4d"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:45ad04336c95c0be6bba90e4b663da4d"));
 
-		Graph aGraph = RDFMapper.create().writeValue(aObj);
+		Model aGraph = RDFMapper.create().writeValue(aObj);
 
-		Graph aExpected = Graphs.of(new File(getClass().getResource("/data/mixed.nt").toURI()));
+		Model aExpected = ModelIO.read(new File(getClass().getResource("/data/mixed.nt").toURI()).toPath());
 
-		assertTrue(ModelUtil.equals(aExpected, aGraph));
+		assertTrue(Models.isomorphic(aExpected, aGraph));
 	}
 
 	@Test
@@ -163,11 +163,11 @@ public class RDFMapperTests {
 		aObj.setFloats(Sets.newLinkedHashSet(Lists.newArrayList(8f, 20f)));
 		aObj.setBools(Sets.newTreeSet(Lists.newArrayList(true, false)));
 		aObj.setDoubles(Sets.newLinkedHashSet(Lists.newArrayList(22d, 33d)));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:b7d283d3a73c7b8a870087942b9a43b1"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:b7d283d3a73c7b8a870087942b9a43b1"));
 
-		Graph aResult = RDFMapper.create().writeValue(aObj);
+		Model aResult = RDFMapper.create().writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/primitive_lists.nt")),
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/primitive_lists.nt").toPath()),
 		                            aResult));
 	}
 
@@ -176,14 +176,14 @@ public class RDFMapperTests {
 		ClassWithPrimitiveLists aObj = new ClassWithPrimitiveLists();
 
 		aObj.setInts(Lists.newArrayList(4, 5));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:9017b0ab9335e4d090290a0dffc81826"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:9017b0ab9335e4d090290a0dffc81826"));
 
-		final Graph aResult = RDFMapper.builder()
+		final Model aResult = RDFMapper.builder()
 		                               .set(MappingOptions.SERIALIZE_COLLECTIONS_AS_LISTS, true)
 		                               .build()
 		                               .writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/primitive_rdf_lists.nt")),
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/primitive_rdf_lists.nt").toPath()),
 		                            aResult));
 	}
 
@@ -192,11 +192,11 @@ public class RDFMapperTests {
 		ClassWithPrimitiveRdfList aObj = new ClassWithPrimitiveRdfList();
 
 		aObj.setInts(Lists.newArrayList(4, 5));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:2b04e666a0fec2830d882740dbec8262"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:2b04e666a0fec2830d882740dbec8262"));
 
-		final Graph aResult = RDFMapper.create().writeValue(aObj);
+		final Model aResult = RDFMapper.create().writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/primitive_rdf_lists2.nt")),
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/primitive_rdf_lists2.nt").toPath()),
 		                            aResult));
 	}
 
@@ -207,11 +207,11 @@ public class RDFMapperTests {
 		aObj.setSet(Sets.newLinkedHashSet(Lists.newArrayList(new Person("JJ Hardy"), new Person("Manny Machado"))));
 		aObj.setList(Lists.newArrayList(new Person("Alejandro De Aza"), new Person("Adam Jones")));
 		aObj.setSortedSet(Sets.newTreeSet(Lists.newArrayList(new Person("Steve Pearce"), new Person("Zach Britton"))));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
 
-		final Graph aResult = RDFMapper.create().writeValue(aObj);
+		final Model aResult = RDFMapper.create().writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/object_lists.nt")), aResult));
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/object_lists.nt").toPath()), aResult));
 	}
 
 	@Test
@@ -219,14 +219,14 @@ public class RDFMapperTests {
 		ClassWithObjectList aObj = new ClassWithObjectList();
 
 		aObj.setCollection(Sets.newLinkedHashSet(Lists.newArrayList(new Person("Earl Weaver"), new Person("Brooks Robinson"))));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
 
-		final Graph aResult = RDFMapper.builder()
+		final Model aResult = RDFMapper.builder()
 		                               .set(MappingOptions.SERIALIZE_COLLECTIONS_AS_LISTS, true)
 		                               .build()
 		                               .writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/object_rdf_lists.nt")), aResult));
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/object_rdf_lists.nt").toPath()), aResult));
 	}
 
 	@Test
@@ -234,20 +234,20 @@ public class RDFMapperTests {
 		ClassWithRdfObjectList aObj = new ClassWithRdfObjectList();
 
 		aObj.setList(Lists.newArrayList(new Person("Earl Weaver"), new Person("Brooks Robinson")));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:716825cc44cff258b685466022250434"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:716825cc44cff258b685466022250434"));
 
-		final Graph aResult = RDFMapper.create().writeValue(aObj);
+		final Model aResult = RDFMapper.create().writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/object_rdf_lists2.nt")), aResult));
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/object_rdf_lists2.nt").toPath()), aResult));
 	}
 
 	@Test
 	public void testReadListOfPrimitives() throws Exception {
-		Graph aGraph = Graphs.of(Files3.classPath("/data/primitive_lists.nt"));
+		Model aGraph = ModelIO.read(Files3.classPath("/data/primitive_lists.nt").toPath());
 
 		final ClassWithPrimitiveLists aResult = RDFMapper.create().readValue(aGraph,
 		                                                                     ClassWithPrimitiveLists.class,
-		                                                                     ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:b7d283d3a73c7b8a870087942b9a43b1"));
+		                                                                     SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:b7d283d3a73c7b8a870087942b9a43b1"));
 
 		ClassWithPrimitiveLists aExpected = new ClassWithPrimitiveLists();
 
@@ -261,11 +261,11 @@ public class RDFMapperTests {
 
 	@Test
 	public void testReadRdfListOfPrimitives() throws Exception {
-		Graph aGraph = Graphs.of(Files3.classPath("/data/primitive_rdf_lists.nt"));
+		Model aGraph = ModelIO.read(Files3.classPath("/data/primitive_rdf_lists.nt").toPath());
 
 		final ClassWithPrimitiveLists aResult = RDFMapper.create().readValue(aGraph,
 		                                                                     ClassWithPrimitiveLists.class,
-		                                                                     ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:9017b0ab9335e4d090290a0dffc81826"));
+		                                                                     SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:9017b0ab9335e4d090290a0dffc81826"));
 
 		ClassWithPrimitiveLists aExpected = new ClassWithPrimitiveLists();
 
@@ -276,7 +276,7 @@ public class RDFMapperTests {
 
 	@Test
 	public void testReadListOfObjects() throws Exception {
-		Graph aGraph = Graphs.of(Files3.classPath("/data/object_lists.nt"));
+		Model aGraph = ModelIO.read(Files3.classPath("/data/object_lists.nt").toPath());
 
 		ClassWithObjectList aExpected = new ClassWithObjectList();
 		aExpected.setCollection(Sets.newLinkedHashSet(Lists.newArrayList(new Person("Earl Weaver"), new Person("Brooks Robinson"))));
@@ -286,14 +286,14 @@ public class RDFMapperTests {
 
 		final ClassWithObjectList aResult = RDFMapper.create().readValue(aGraph,
 		                                                                 ClassWithObjectList.class,
-		                                                                 ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
+		                                                                 SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
 
 		assertEquals(aExpected, aResult);
 	}
 
 	@Test
 	public void testReadRdfListOfObjects() throws Exception {
-		Graph aGraph = Graphs.of(Files3.classPath("/data/object_rdf_lists.nt"));
+		Model aGraph = ModelIO.read(Files3.classPath("/data/object_rdf_lists.nt").toPath());
 
 		ClassWithObjectList aExpected = new ClassWithObjectList();
 
@@ -301,7 +301,7 @@ public class RDFMapperTests {
 
 		final ClassWithObjectList aResult = RDFMapper.create().readValue(aGraph,
 		                                                                 ClassWithObjectList.class,
-		                                                                 ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
+		                                                                 SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
 		assertEquals(aExpected, aResult);
 	}
 
@@ -326,7 +326,7 @@ public class RDFMapperTests {
 		aCompany.setName("Clark & Parsia");
 		aCompany.setWebsite("http://clarkparsia.com");
 
-		Graph aGraph = aMapper.writeValue(aCompany);
+		Model aGraph = aMapper.writeValue(aCompany);
 
 		assertTrue(!aGraph.isEmpty());
 
@@ -344,24 +344,24 @@ public class RDFMapperTests {
 		ClassWithObjectList aObj = new ClassWithObjectList();
 
 		aObj.setCollection(Sets.newLinkedHashSet(Lists.newArrayList(new Person("Earl Weaver"), new Person("Brooks Robinson"))));
-		aObj.id(ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
 
-		Graph aGraph = RDFMapper.create().writeValue(aObj);
+		Model aGraph = RDFMapper.create().writeValue(aObj);
 
-		Graph aOtherGraph = RDFMapper.create().writeValue(aObj);
+		Model aOtherGraph = RDFMapper.create().writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(aGraph, aOtherGraph));
+		assertTrue(Models.isomorphic(aGraph, aOtherGraph));
 	}
 
 	@Test
 	public void testReadTwice() throws Exception {
-		Graph aGraph = Graphs.of(Files3.classPath("/data/object_lists.nt"));
+		Model aGraph = ModelIO.read(Files3.classPath("/data/object_lists.nt").toPath());
 
 		final ClassWithObjectList aObj = RDFMapper.create().readValue(aGraph, ClassWithObjectList.class,
-		                                                              ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
+		                                                              SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
 
 		final ClassWithObjectList aObj2 = RDFMapper.create().readValue(aGraph, ClassWithObjectList.class,
-		                                                               ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
+		                                                               SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc"));
 
 		assertEquals(aObj, aObj2);
 	}
@@ -370,7 +370,7 @@ public class RDFMapperTests {
 	public void testIdentifiableNoIdFallbackToDefault() throws Exception {
 		Person aPerson = new Person("Michael Grove");
 
-		Graph aGraph = RDFMapper.create().writeValue(aPerson);
+		Model aGraph = RDFMapper.create().writeValue(aPerson);
 
 		assertEquals(1, aGraph.size());
 
@@ -392,9 +392,9 @@ public class RDFMapperTests {
 		Company aCompany = new Company();
 		aCompany.setNumberOfEmployees(10);
 
-		Graph aGraph = RDFMapper.create().writeValue(aCompany);
+		Model aGraph = RDFMapper.create().writeValue(aCompany);
 
-		Optional<Statement> aStatement = Graphs.find(aGraph, Statements.predicateIs(ValueFactoryImpl.getInstance().createURI(RDFMapper.DEFAULT_NAMESPACE + "numberOfEmployees")));
+		Optional<Statement> aStatement = aGraph.stream().filter(Statements.predicateIs(SimpleValueFactory.getInstance().createIRI(RDFMapper.DEFAULT_NAMESPACE + "numberOfEmployees"))).findFirst();
 
 		assertTrue("should have found the triple", aStatement.isPresent());
 
@@ -409,7 +409,7 @@ public class RDFMapperTests {
 		BadCompany aCompany = new BadCompany();
 		aCompany.setNumberOfEmployees(10);
 
-		Graph aGraph = RDFMapper.create().writeValue(aCompany);
+		Model aGraph = RDFMapper.create().writeValue(aCompany);
 
 		// this will be empty since there are no valid assertions
 		assertTrue(aGraph.isEmpty());
@@ -428,7 +428,7 @@ public class RDFMapperTests {
 		Company aCompany = new Company();
 		aCompany.setNumberOfEmployees(10);
 
-		Graph aGraph = RDFMapper.create().writeValue(aCompany);
+		Model aGraph = RDFMapper.create().writeValue(aCompany);
 
 		// should be two stmts, the rdf:type assertion and the one for :numberOfEmployees
 		// id might be different every time since we have no inputs to the id hash, so we'll just rely on the count
@@ -453,15 +453,15 @@ public class RDFMapperTests {
 		aCompany.setName("Clark & Parsia");
 		aCompany.setWebsite("http://clarkparsia.com");
 
-		Graph aGraph = RDFMapper.create().writeValue(aCompany);
+		Model aGraph = RDFMapper.create().writeValue(aCompany);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/company.nt")),
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/company.nt").toPath()),
 		                            aGraph));
 	}
 
 	@Test(expected=RDFMappingException.class)
 	public void testCardinalityViolationFatal() throws Exception {
-		RDFMapper.create().readValue(Graphs.of(Files3.classPath("/data/company-card.nt")), Company.class);
+		RDFMapper.create().readValue(ModelIO.read(Files3.classPath("/data/company-card.nt").toPath()), Company.class);
 	}
 
 	@Test
@@ -469,7 +469,7 @@ public class RDFMapperTests {
 		Company aCompany = RDFMapper.builder()
 		                            .set(MappingOptions.IGNORE_CARDINALITY_VIOLATIONS, true)
 		                            .build()
-		                            .readValue(Graphs.of(Files3.classPath("/data/company-card.nt")), Company.class);
+		                            .readValue(ModelIO.read(Files3.classPath("/data/company-card.nt").toPath()), Company.class);
 
 		assertEquals("http://clarkparsia.com", aCompany.getWebsite());
 
@@ -482,8 +482,8 @@ public class RDFMapperTests {
 		aCompany.setName("Clark & Parsia");
 		aCompany.setWebsite("http://clarkparsia.com");
 
-		Graph aGraph = RDFMapper.create().writeValue(aCompany);
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/bad_company.nt")),
+		Model aGraph = RDFMapper.create().writeValue(aCompany);
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/bad_company.nt").toPath()),
 		                            aGraph));
 	}
 
@@ -516,18 +516,18 @@ public class RDFMapperTests {
 		aCompany.setWebsite("http://clarkparsia.com");
 		aCompany.setNumberOfEmployees(10);
 
-		final Graph aGraph = RDFMapper.builder()
+		final Model aGraph = RDFMapper.builder()
 		                              .namespace("fo", FOAF.ontology().uri().toString())
 		                              .namespace("xs", XMLSchema.NAMESPACE)
 		                              .build().writeValue(aCompany);
 
-		assertTrue(ModelUtil.equals(Graphs.of(Files3.classPath("/data/company2.nt")), aGraph));
+		assertTrue(Models.isomorphic(ModelIO.read(Files3.classPath("/data/company2.nt").toPath()), aGraph));
 	}
 
 	@Test
 	public void testReadWithUnmatchedRDF() throws Exception {
-		Graph aGraph = Graphs.of(Files3.classPath("/data/object_rdf_lists.nt"));
-		aGraph.addAll(Graphs.of(Files3.classPath("/data/mixed.nt")));
+		Model aGraph = ModelIO.read(Files3.classPath("/data/object_rdf_lists.nt").toPath());
+		aGraph.addAll(ModelIO.read(Files3.classPath("/data/mixed.nt").toPath()));
 
 		ClassWithObjectList aExpected = new ClassWithObjectList();
 
@@ -536,7 +536,7 @@ public class RDFMapperTests {
 
 
 		final ClassWithObjectList aObj = RDFMapper.create().readValue(aGraph, ClassWithObjectList.class,
-		                                                              ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
+		                                                              SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:4f372f7bfb03f7b80be8777603d3b1ed"));
 		assertEquals(aExpected, aObj);
 	}
 
@@ -544,20 +544,20 @@ public class RDFMapperTests {
 	public void testWriteEnum() throws Exception {
 		ClassWithEnum aObj = new ClassWithEnum();
 
-		aObj.id(ValueFactoryImpl.getInstance().createURI("urn:testWriteEnum"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("urn:testWriteEnum"));
 		aObj.setValue(TestEnum.Bar);
 
-		Graph aGraph = RDFMapper.create().writeValue(aObj);
+		Model aGraph = RDFMapper.create().writeValue(aObj);
 
 		assertEquals(1, aGraph.size());
 
-		Optional<Statement> aStatement = Graphs.find(aGraph, Statements.predicateIs(ValueFactoryImpl.getInstance().createURI(RDFMapper.DEFAULT_NAMESPACE + "value")));
+		Optional<Statement> aStatement = aGraph.stream().filter(Statements.predicateIs(SimpleValueFactory.getInstance().createIRI(RDFMapper.DEFAULT_NAMESPACE + "value"))).findFirst();
 
 		assertTrue("should have found the triple", aStatement.isPresent());
 
 		Resource aResult = (Resource) aStatement.get().getObject();
 
-		assertEquals(ValueFactoryImpl.getInstance().createURI("urn:TestEnum:Bar"), aResult);
+		assertEquals(SimpleValueFactory.getInstance().createIRI("urn:TestEnum:Bar"), aResult);
 
 		aObj.setValue(TestEnum.Baz);
 
@@ -565,23 +565,23 @@ public class RDFMapperTests {
 
 		assertEquals(1, aGraph.size());
 
-		aStatement = Graphs.find(aGraph, Statements.predicateIs(ValueFactoryImpl.getInstance().createURI(RDFMapper.DEFAULT_NAMESPACE + "value")));
+		aStatement = aGraph.stream().filter(Statements.predicateIs(SimpleValueFactory.getInstance().createIRI(RDFMapper.DEFAULT_NAMESPACE + "value"))).findFirst();
 
 		assertTrue("should have found the triple", aStatement.isPresent());
 
 		aResult = (Resource) aStatement.get().getObject();
 
-		assertEquals(ValueFactoryImpl.getInstance().createURI(RDFMapper.DEFAULT_NAMESPACE, "Baz"), aResult);
+		assertEquals(SimpleValueFactory.getInstance().createIRI(RDFMapper.DEFAULT_NAMESPACE, "Baz"), aResult);
 	}
 
 	@Test
 	public void testWriteEnumInvalidIri() throws Exception {
 		ClassWithEnum aObj = new ClassWithEnum();
 
-		aObj.id(ValueFactoryImpl.getInstance().createURI("urn:testWriteEnumInvalidIri"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("urn:testWriteEnumInvalidIri"));
 		aObj.setValue(TestEnum.Foo);
 
-		final Graph aGraph = RDFMapper.create().writeValue(aObj);
+		final Model aGraph = RDFMapper.create().writeValue(aObj);
 
 		assertTrue(aGraph.isEmpty());
 	}
@@ -590,7 +590,7 @@ public class RDFMapperTests {
 	public void testWriteEnumInvalidIriFatal() throws Exception {
 		ClassWithEnum aObj = new ClassWithEnum();
 
-		aObj.id(ValueFactoryImpl.getInstance().createURI("urn:testWriteEnumInvalidIri"));
+		aObj.id(SimpleValueFactory.getInstance().createIRI("urn:testWriteEnumInvalidIri"));
 		aObj.setValue(TestEnum.Foo);
 
 		RDFMapper.builder()
@@ -601,11 +601,11 @@ public class RDFMapperTests {
 
 	@Test
 	public void testReadEnum() throws Exception {
-		final Graph aGraph = Graphs.of(Files3.classPath("/data/enum.nt"));
+		final Model aGraph = ModelIO.read(Files3.classPath("/data/enum.nt").toPath());
 
 		final ClassWithEnum aExpected = new ClassWithEnum();
 
-		aExpected.id(ValueFactoryImpl.getInstance().createURI("urn:testReadEnum"));
+		aExpected.id(SimpleValueFactory.getInstance().createIRI("urn:testReadEnum"));
 		aExpected.setValue(TestEnum.Bar);
 
 		final ClassWithEnum aResult = RDFMapper.create().readValue(aGraph, ClassWithEnum.class);
@@ -650,39 +650,39 @@ public class RDFMapperTests {
 
 	@Test(expected = RDFMappingException.class)
 	public void testNoDefaultConstructor() throws Exception {
-		RDFMapper.create().readValue(Graphs.of(Files3.classPath("/data/mixed.nt")), CannotConstructMe.class);
+		RDFMapper.create().readValue(ModelIO.read(Files3.classPath("/data/mixed.nt").toPath()), CannotConstructMe.class);
 	}
 
 	@Test(expected = RDFMappingException.class)
 	public void testCannotConstructAbstract() throws Exception {
-		RDFMapper.create().readValue(Graphs.of(Files3.classPath("/data/mixed.nt")), CannotConstructMe2.class);
+		RDFMapper.create().readValue(ModelIO.read(Files3.classPath("/data/mixed.nt").toPath()), CannotConstructMe2.class);
 	}
 
 	@Test
 	public void testConstructFromEmpty() throws Exception {
-		assertEquals(RDFMapper.create().readValue(Graphs.newGraph(), Person.class), new Person());
+		assertEquals(RDFMapper.create().readValue(Models2.newModel(), Person.class), new Person());
 	}
 
 	@Test(expected = RDFMappingException.class)
 	public void testMultipleSubjectsNoIdProvided() throws Exception {
-		RDFMapper.create().readValue(Graphs.of(Files3.classPath("/data/object_lists.nt")), ClassWithObjectList.class);
+		RDFMapper.create().readValue(ModelIO.read(Files3.classPath("/data/object_lists.nt").toPath()), ClassWithObjectList.class);
 	}
 
 	@Test
 	public void testWriteWithCodec() throws Exception {
 
-		final Graph aGraph = RDFMapper.builder()
+		final Model aGraph = RDFMapper.builder()
 		                              .codec(UUID.class, UUIDCodec.Instance)
 		                              .build()
 		                              .writeValue(UUID.fromString("0110f311-964b-440d-b772-92c621c5d1e4"));
 
-		assertTrue(ModelUtil.equals(aGraph,
-		                            Graphs.of(Files3.classPath("/data/uuid.nt"))));
+		assertTrue(Models.isomorphic(aGraph,
+		                            ModelIO.read(Files3.classPath("/data/uuid.nt").toPath())));
 	}
 
 	@Test
 	public void testReadWithCodec() throws Exception {
-		final Graph aGraph = Graphs.of(Files3.classPath("/data/uuid.nt"));
+		final Model aGraph = ModelIO.read(Files3.classPath("/data/uuid.nt").toPath());
 
 		final UUID aResult = RDFMapper.builder()
 				                              .codec(UUID.class, UUIDCodec.Instance)
@@ -703,13 +703,13 @@ public class RDFMapperTests {
 		aObj.mMap.put(new Date(1426361082470L), 57.4);
 		aObj.mMap.put(new Person("another person"), new Company("The company"));
 
-		final Graph aGraph = RDFMapper.builder()
+		final Model aGraph = RDFMapper.builder()
 		                              .map(FOAF.ontology().Person, Person.class)
 		                              .build()
 		                              .writeValue(aObj);
 
-		assertTrue(ModelUtil.equals(aGraph,
-		                            Graphs.of(Files3.classPath("/data/map.nt"))));
+		assertTrue(Models.isomorphic(aGraph,
+		                            ModelIO.read(Files3.classPath("/data/map.nt").toPath())));
 	}
 
 	@Test
@@ -723,13 +723,14 @@ public class RDFMapperTests {
 		aExpected.mMap.put(new Date(1426361082470L), 57.4);
 		aExpected.mMap.put(new Person("another person"), new Company("The company"));
 
-		final Graph aGraph = Graphs.of(Files3.classPath("/data/map.nt"));
+		final Model aGraph = ModelIO.read(Files3.classPath("/data/map.nt").toPath());
 
 		assertEquals(aExpected, RDFMapper.builder()
 		                                 .map(FOAF.ontology().Person, Person.class)
-		                                 .map(ValueFactoryImpl.getInstance().createURI("urn:Company"), Company.class)
-		                                 .build().readValue(aGraph, ClassWithMap.class,
-		                                                    ValueFactoryImpl.getInstance().createURI("tag:complexible:pinto:92e266ff9b784d461ea07bd985559056")));
+		                                 .map(SimpleValueFactory.getInstance().createIRI("urn:Company"), Company.class)
+		                                 .build()
+		                                 .readValue(aGraph, ClassWithMap.class,
+		                                                    SimpleValueFactory.getInstance().createIRI("tag:complexible:pinto:06f95e70fea33fcd99e6804b02f96cc9")));
 	}
 
 	public static final class Files3 {
@@ -800,7 +801,7 @@ public class RDFMapperTests {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mName, mWebsite);
+			return Objects.hash(mName, mWebsite);
 		}
 
 		@Override
@@ -811,8 +812,8 @@ public class RDFMapperTests {
 			else if (theObj instanceof ShortCompany) {
 				ShortCompany aObj = (ShortCompany) theObj;
 				return mNumberOfEmployees == aObj.mNumberOfEmployees
-				       && Objects.equal(mName, aObj.mName)
-				       && Objects.equal(mWebsite, aObj.mWebsite);
+				       && Objects.equals(mName, aObj.mName)
+				       && Objects.equals(mWebsite, aObj.mWebsite);
 			}
 			else {
 				return false;
@@ -854,7 +855,7 @@ public class RDFMapperTests {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mName, mWebsite);
+			return Objects.hash(mName, mWebsite);
 		}
 
 		@Override
@@ -864,7 +865,7 @@ public class RDFMapperTests {
 			}
 			else if (theObj instanceof BadCompany) {
 				BadCompany aObj = (BadCompany) theObj;
-				return Objects.equal(mName, aObj.mName) && Objects.equal(mWebsite, aObj.mWebsite);
+				return Objects.equals(mName, aObj.mName) && Objects.equals(mWebsite, aObj.mWebsite);
 			}
 			else {
 				return false;
@@ -916,7 +917,7 @@ public class RDFMapperTests {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mName, mWebsite);
+			return Objects.hash(mName, mWebsite);
 		}
 
 		@Override
@@ -926,7 +927,7 @@ public class RDFMapperTests {
 			}
 			else if (theObj instanceof Company) {
 				Company aObj = (Company) theObj;
-				return Objects.equal(mName, aObj.mName) && Objects.equal(mWebsite, aObj.mWebsite);
+				return Objects.equals(mName, aObj.mName) && Objects.equals(mWebsite, aObj.mWebsite);
 			}
 			else {
 				return false;
@@ -956,7 +957,7 @@ public class RDFMapperTests {
 				return true;
 			}
 			else if (theObj instanceof ClassWithEnumSet) {
-				return Objects.equal(mEnums, ((ClassWithEnumSet) theObj).mEnums);
+				return Objects.equals(mEnums, ((ClassWithEnumSet) theObj).mEnums);
 			}
 			else {
 				return false;
@@ -1000,7 +1001,7 @@ public class RDFMapperTests {
 			else if (theObj instanceof ClassWithEnum) {
 				ClassWithEnum aObj = (ClassWithEnum) theObj;
 
-				return Objects.equal(mValue, aObj.mValue);
+				return Objects.equals(mValue, aObj.mValue);
 			}
 			else {
 				return false;
@@ -1036,7 +1037,7 @@ public class RDFMapperTests {
 			else if (theObj instanceof ClassWithPrimitiveLists) {
 				ClassWithPrimitiveLists aObj = (ClassWithPrimitiveLists) theObj;
 
-				return Objects.equal(mInts, aObj.mInts);
+				return Objects.equals(mInts, aObj.mInts);
 			}
 			else {
 				return false;
@@ -1063,6 +1064,11 @@ public class RDFMapperTests {
 
 		public Person(final String theName) {
 			mName = theName;
+		}
+
+		@Override
+		public String toString() {
+			return mName;
 		}
 
 		@Override
@@ -1094,7 +1100,7 @@ public class RDFMapperTests {
 				return true;
 			}
 			else if (theObj instanceof Person) {
-				return Objects.equal(mName, ((Person) theObj).mName);
+				return Objects.equals(mName, ((Person) theObj).mName);
 			}
 			else {
 				return false;
@@ -1144,7 +1150,7 @@ public class RDFMapperTests {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mList, mSet, mCollection, mSortedSet);
+			return Objects.hash(mList, mSet, mCollection, mSortedSet);
 		}
 
 		@Override
@@ -1226,7 +1232,7 @@ public class RDFMapperTests {
 			else if (theObj instanceof ClassWithRdfObjectList) {
 				ClassWithRdfObjectList aObj = (ClassWithRdfObjectList) theObj;
 
-				return Objects.equal(mList, aObj.mList);
+				return Objects.equals(mList, aObj.mList);
 			}
 			else {
 				return false;
@@ -1266,7 +1272,7 @@ public class RDFMapperTests {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mInts, mFloats, mDoubles, mBools);
+			return Objects.hash(mInts, mFloats, mDoubles, mBools);
 		}
 
 		@Override
@@ -1355,7 +1361,7 @@ public class RDFMapperTests {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mString, mChild);
+			return Objects.hash(mString, mChild);
 		}
 
 		@Override
@@ -1365,8 +1371,8 @@ public class RDFMapperTests {
 			}
 			else if (theObj instanceof ClassWithMixed) {
 				ClassWithMixed aObj = (ClassWithMixed) theObj;
-				return Objects.equal(mString, aObj.mString)
-						&& Objects.equal(mChild, aObj.mChild);
+				return Objects.equals(mString, aObj.mString)
+						&& Objects.equals(mChild, aObj.mChild);
 			}
 			else {
 				return false;
@@ -1409,13 +1415,13 @@ public class RDFMapperTests {
 			       && Double.compare(mDouble, that.mDouble) == 0
 			       && Float.compare(mFloat, that.mFloat) == 0
 			       && mInt == that.mInt
-			       && Objects.equal(mString, that.mString)
-			       && Objects.equal(mURI, that.mURI);
+			       && Objects.equals(mString, that.mString)
+			       && Objects.equals(mURI, that.mURI);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(mChar, mDouble, mFloat, mInt, mString, mURI);
+			return Objects.hash(mChar, mDouble, mFloat, mInt, mString, mURI);
 		}
 
 		public char getChar() {
@@ -1489,7 +1495,7 @@ public class RDFMapperTests {
 				return true;
 			}
 			else if (theObj instanceof ClassWithMap) {
-				return Objects.equal(mMap, ((ClassWithMap) theObj).mMap);
+				return Objects.equals(mMap, ((ClassWithMap) theObj).mMap);
 			}
 			else {
 				return false;

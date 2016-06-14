@@ -18,8 +18,8 @@ package com.complexible.common.reflect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import com.complexible.common.collect.Iterables2;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
 
 import static com.google.common.collect.Iterables.any;
 
@@ -28,8 +28,8 @@ import static com.google.common.collect.Iterables.any;
  *
  * @author  Michael Grove
  *
- * @version 1.0
  * @since   1.0
+ * @version 2.0
  */
 public final class Classes {
 
@@ -50,11 +50,11 @@ public final class Classes {
 
 	/**
 	 * Return all the interfaces of the {@link Class} as an {@link Iterable}
-	 * @param theClass
-	 * @return
+	 * @param theClass  the class
+	 * @return          the interfaces of the class
 	 */
 	public static Iterable<Class<?>> interfaces(final Class<?> theClass) {
-		return Iterables2.forArray(theClass.getInterfaces());
+		return Lists.newArrayList(theClass.getInterfaces());
 	}
 
 	/**

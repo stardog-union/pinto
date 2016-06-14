@@ -1,16 +1,16 @@
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:set> <tag:complexible:pinto:4738a16e7e18c76579a1d3dd1dcfd940> .
-<tag:complexible:pinto:4738a16e7e18c76579a1d3dd1dcfd940> <tag:complexible:pinto:name> "JJ Hardy"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:set> <tag:complexible:pinto:e115d60ced53f2025b3aa464fbf9a856> .
-<tag:complexible:pinto:e115d60ced53f2025b3aa464fbf9a856> <tag:complexible:pinto:name> "Manny Machado"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:list> <tag:complexible:pinto:b617ed5f3124ad2f131f3d8c4a4eb578> .
-<tag:complexible:pinto:b617ed5f3124ad2f131f3d8c4a4eb578> <tag:complexible:pinto:name> "Alejandro De Aza"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:list> <tag:complexible:pinto:d4b48c4173806619f8e03fb4e8d27b23> .
-<tag:complexible:pinto:d4b48c4173806619f8e03fb4e8d27b23> <tag:complexible:pinto:name> "Adam Jones"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:collection> <tag:complexible:pinto:fe0fe12ccf44774cfc76fc917750b2b3> .
-<tag:complexible:pinto:fe0fe12ccf44774cfc76fc917750b2b3> <tag:complexible:pinto:name> "Earl Weaver"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:collection> <tag:complexible:pinto:1792529cbba8c3fe944e0c12ca7bfd48> .
-<tag:complexible:pinto:1792529cbba8c3fe944e0c12ca7bfd48> <tag:complexible:pinto:name> "Brooks Robinson"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:sortedSet> <tag:complexible:pinto:9ad2550a5997cf03c489a8d033a91f21> .
-<tag:complexible:pinto:9ad2550a5997cf03c489a8d033a91f21> <tag:complexible:pinto:name> "Steve Pearce"^^<http://www.w3.org/2001/XMLSchema#string> .
-<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:sortedSet> <tag:complexible:pinto:173bd1058a27d4e779a10bc4bd8be97c> .
-<tag:complexible:pinto:173bd1058a27d4e779a10bc4bd8be97c> <tag:complexible:pinto:name> "Zach Britton"^^<http://www.w3.org/2001/XMLSchema#string> .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:set> <tag:complexible:pinto:d76709bbf0fae17302410b7cd198ac66> .
+<tag:complexible:pinto:d76709bbf0fae17302410b7cd198ac66> <tag:complexible:pinto:name> "JJ Hardy" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:set> <tag:complexible:pinto:1d66dc832d95c8281654b8b71b3b68ce> .
+<tag:complexible:pinto:1d66dc832d95c8281654b8b71b3b68ce> <tag:complexible:pinto:name> "Manny Machado" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:sortedSet> <tag:complexible:pinto:2e270c8a99f6e6772c36e8eef498a0cc> .
+<tag:complexible:pinto:2e270c8a99f6e6772c36e8eef498a0cc> <tag:complexible:pinto:name> "Steve Pearce" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:sortedSet> <tag:complexible:pinto:581a74f9551cd70705bafe3b0df2827d> .
+<tag:complexible:pinto:581a74f9551cd70705bafe3b0df2827d> <tag:complexible:pinto:name> "Zach Britton" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:collection> <tag:complexible:pinto:5498838e539476a7a8ef09955db7da84> .
+<tag:complexible:pinto:5498838e539476a7a8ef09955db7da84> <tag:complexible:pinto:name> "Earl Weaver" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:collection> <tag:complexible:pinto:266770026973436947d5b2452918ab6d> .
+<tag:complexible:pinto:266770026973436947d5b2452918ab6d> <tag:complexible:pinto:name> "Brooks Robinson" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:list> <tag:complexible:pinto:09b5a434de1692e3fc7ed2e1edcd7a6c> .
+<tag:complexible:pinto:09b5a434de1692e3fc7ed2e1edcd7a6c> <tag:complexible:pinto:name> "Alejandro De Aza" .
+<tag:complexible:pinto:881b2f11232944aeda9ba543e030dcfc> <tag:complexible:pinto:list> <tag:complexible:pinto:639179e5744bfb428235966d51604d6a> .
+<tag:complexible:pinto:639179e5744bfb428235966d51604d6a> <tag:complexible:pinto:name> "Adam Jones" .
