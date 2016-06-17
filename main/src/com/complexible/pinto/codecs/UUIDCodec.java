@@ -18,6 +18,7 @@ package com.complexible.pinto.codecs;
 import com.complexible.common.openrdf.model.Models2;
 import com.complexible.common.openrdf.util.ResourceBuilder;
 import com.complexible.pinto.RDFCodec;
+import com.google.common.base.Preconditions;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -54,8 +55,10 @@ public enum UUIDCodec implements RDFCodec<UUID> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UUID readValue(final Model theGraph, final Resource theObj) {
-		final Optional<Value> aObject = Models2.getObject(theGraph, theObj, PROPERTY);
+	public UUID readValue(final Model theGraph, final Value theObj) {
+		Preconditions.checkArgument(theObj instanceof Resource);
+
+		final Optional<Value> aObject = Models2.getObject(theGraph, (Resource) theObj, PROPERTY);
 
 		if (aObject.isPresent()) {
 			return UUID.fromString(aObject.get().stringValue());

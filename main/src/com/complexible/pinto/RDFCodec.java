@@ -15,9 +15,8 @@
 
 package com.complexible.pinto;
 
-import com.complexible.common.openrdf.util.ResourceBuilder;
 import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
+import org.openrdf.model.Value;
 
 /**
  * <p>Interface for a codec which can (de)serialize an object.  Useful in situations where the instance does not
@@ -34,15 +33,14 @@ public interface RDFCodec<T> {
 
 	/**
 	 * Serialize the given value as RDF.  This should produce a round-trippable serialization, that is, the output of
-	 * this method should return an object that is {@code .equals} to the result of passing the RDF to
-	 * {@link #readValue(Model, Resource)}.
+	 * this method should return an object that is {@code .equals} to the result of passing the result to
+	 * {@link #readValue(Model, Value)}.
 	 *
 	 * @param theValue  the value to serialize
 	 *
-	 * @return          the value represented as RDF; calling {@code ResourceBuilder.graph()} should return the RDF
-	 *                  representing the instance.
+	 * @return          the value represented as RDF
 	 */
-	public ResourceBuilder writeValue(final T theValue);
+	public Value writeValue(final T theValue);
 
 	/**
 	 * Deserialize the object denoted by the given resource from the graph into the original Java object
@@ -52,5 +50,5 @@ public interface RDFCodec<T> {
 	 *
 	 * @throws RDFMappingException if there is an error while deserializing
 	 */
-	public T readValue(final Model theGraph, final Resource theObj);
+	public T readValue(final Model theGraph, final Value theObj);
 }

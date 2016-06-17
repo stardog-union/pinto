@@ -71,14 +71,17 @@ import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -253,7 +256,7 @@ public class RDFMapper {
 				// the list as well as the mix of both
 				for (Value aValue : aValues) {
 					if (aValue instanceof Resource && Models2.isList(theGraph, (Resource) aValue)) {
-						aElems.addAll(Models3.asList(theGraph, (Resource) aValue));
+						aElems.addAll(Models2.asList(theGraph, (Resource) aValue));
 					}
 					else {
 						aElems.add(aValue);
@@ -395,7 +398,14 @@ public class RDFMapper {
 		// before we do anything, do we have a custom codec for this?
 		RDFCodec aCodec = mCodecs.get(theValue.getClass());
 		if (aCodec != null) {
-			return aCodec.writeValue(theValue);
+			final Value aResult = aCodec.writeValue(theValue);
+
+			if (aResult instanceof ResourceBuilder) {
+				return (ResourceBuilder) aResult;
+			}
+			else {
+				return new ResourceBuilder(id(theValue)).addType(getType(theValue)).addProperty(VALUE, aResult);
+			}
 		}
 
 		final Resource aId = id(theValue);
@@ -422,10 +432,7 @@ public class RDFMapper {
 
 				final Object aObj = aEntry.getValue();
 
-				if (aObj == null) {
-					continue;
-				}
-				else {
+				if (aObj != null) {
 					setValue(aGraph, aBuilder, aDescriptor, aProperty, aObj);
 				}
 			}
@@ -467,7 +474,7 @@ public class RDFMapper {
 				}
 
 				if (!aList.isEmpty()) {
-					theBuilder.addProperty(theProperty, Models3.toList(aList, theBuilder.model()));
+					theBuilder.addProperty(theProperty, Models2.toList(aList, theBuilder.model()));
 				}
 			}
 			else {
@@ -1116,142 +1123,6 @@ public class RDFMapper {
 			                     mMapFactory, mCodecs, mOptions);
 		}
 	}
-
-//	// todo: move to openrdf-utils
-	private static final class Models3 {
-//		private static final Model EMPTY_GRAPH = new Model() {
-//			@Override
-//			public int size() {
-//				return 0;
-//			}
-//
-//			@Override
-//			public boolean isEmpty() {
-//				return true;
-//			}
-//
-//			@Override
-//			public boolean contains(final Object o) {
-//				return false;
-//			}
-//
-//			@Override
-//			public Iterator<Statement> iterator() {
-//				return ImmutableSet.<Statement>of().iterator();
-//			}
-//
-//			@Override
-//			public Object[] toArray() {
-//				return new Object[0];
-//			}
-//
-//			@Override
-//			public <T> T[] toArray(final T[] a) {
-//				return a;
-//			}
-//
-//			@Override
-//			public boolean add(final Statement e) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean remove(final Object o) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean containsAll(final Collection<?> c) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean addAll(final Collection<? extends Statement> c) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean removeAll(final Collection<?> c) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean retainAll(final Collection<?> c) {
-//				return false;
-//			}
-//
-//			@Override
-//			public void clear() {
-//
-//			}
-//
-//			@Override
-//			public ValueFactory getValueFactory() {
-//				return ValueFactoryImpl.getInstance();
-//			}
-//
-//			@Override
-//			public boolean add(final Resource subj, final IRI pred, final Value obj, final Resource... contexts) {
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean remove(final Resource subj, final IRI pred, final Value obj, final Resource... contexts) {
-//				return false;
-//			}
-//
-//			@Override
-//			public Iterator<Statement> match(final Resource subj, final IRI pred, final Value obj,
-//			                                 final Resource... contexts) {
-//				return ImmutableSet.<Statement>of().iterator();
-//			}
-//		};
-//
-//		public static Graph emptyGraph() {
-//			return EMPTY_GRAPH;
-//		}
-//
-		public static Resource toList(final List<Value> theList, final Model theGraph) {
-			Resource aCurr = SimpleValueFactory.getInstance().createBNode();
-
-			int i = 0;
-			final Resource aHead = aCurr;
-
-			for (Value r : theList) {
-				Resource aNext = SimpleValueFactory.getInstance().createBNode();
-				theGraph.add(aCurr, RDF.FIRST, r);
-				theGraph.add(aCurr, RDF.REST, ++i < theList.size() ? aNext : RDF.NIL);
-				aCurr = aNext;
-			}
-
-			return aHead;
-		}
-
-	public static List<Value> asList(final Model theGraph, final Resource theRes) {
-		List<Value> aList = Lists.newArrayList();
-
-		Resource aListRes = theRes;
-
-		while (aListRes != null) {
-
-			Optional<Value> aFirst = theGraph.stream().filter(Statements.subjectIs(aListRes).and(Statements.predicateIs(RDF.FIRST))).map(Statement::getObject).findFirst();
-			Optional<Resource> aRest = theGraph.stream().filter(Statements.subjectIs(aListRes).and(Statements.predicateIs(RDF.REST))).map(Statement::getObject).map(Resource.class::cast).findFirst();
-
-			if (aFirst.isPresent()) {
-				aList.add(aFirst.get());
-			}
-
-			if (aRest.orElse(RDF.NIL).equals(RDF.NIL)) {
-				aListRes = null;
-			}
-			else {
-				aListRes = aRest.get();
-			}
-		}
-
-		return aList;
-	}
-}
 
 	/**
 	 * <p>A factory for creating instances of {@link Collection} when {@link #readValue(Model, Class) reading} an object.</p>

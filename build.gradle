@@ -52,7 +52,7 @@ dependencies {
 	compile "commons-beanutils:commons-beanutils:1.9.2"
 	compile "commons-codec:commons-codec:1.10"
 
-	compile "com.complexible.common:cp-openrdf-utils:4.0.1"
+	compile "com.complexible.common:cp-openrdf-utils:4.0.2"
 	compile ("com.complexible.common:cp-common-utils:5.0.1") {
 		exclude group: "org.slf4j"
 	}
