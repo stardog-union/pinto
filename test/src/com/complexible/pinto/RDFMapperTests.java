@@ -24,7 +24,7 @@ import com.complexible.pinto.annotations.RdfId;
 import com.complexible.pinto.annotations.RdfProperty;
 import com.complexible.pinto.annotations.RdfsClass;
 import com.complexible.pinto.codecs.UUIDCodec;
-import com.complexible.pinto.impl.IdentifableImpl;
+import com.complexible.pinto.impl.IdentifiableImpl;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -968,7 +968,7 @@ public class RDFMapperTests {
 	public static class ClassWithEnum implements Identifiable {
 		private TestEnum mValue;
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {
@@ -1012,7 +1012,7 @@ public class RDFMapperTests {
 	public static class ClassWithPrimitiveRdfList implements Identifiable {
 		private List<Integer> mInts = Lists.newArrayList();
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {
@@ -1057,7 +1057,7 @@ public class RDFMapperTests {
 	public static final class Person implements Comparable<Person>, Identifiable {
 		private String mName;
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		public Person() {
 		}
@@ -1136,7 +1136,7 @@ public class RDFMapperTests {
 
 		private SortedSet<Person> mSortedSet = Sets.newTreeSet();
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {
@@ -1207,7 +1207,7 @@ public class RDFMapperTests {
 	public static class ClassWithRdfObjectList implements Identifiable {
 		private List<Person> mList = Lists.newArrayList();
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {
@@ -1258,7 +1258,7 @@ public class RDFMapperTests {
 
 		private SortedSet<Boolean> mBools = Sets.newTreeSet();
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {
@@ -1331,7 +1331,7 @@ public class RDFMapperTests {
 
 		private String mString;
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {
@@ -1388,7 +1388,7 @@ public class RDFMapperTests {
 		private double mDouble;
 		private char mChar;
 
-		private Identifiable mIdentifiable = new IdentifableImpl();
+		private Identifiable mIdentifiable = new IdentifiableImpl();
 
 		@Override
 		public Resource id() {

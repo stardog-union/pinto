@@ -23,9 +23,9 @@ import org.openrdf.model.Resource;
  *
  * @author  Michael Grove
  * @since   1.0
- * @version 1.0
+ * @version 2.0.1
  */
-public final class IdentifableImpl implements Identifiable {
+public final class IdentifiableImpl implements Identifiable {
 	private Resource mId;
 
 	/**
