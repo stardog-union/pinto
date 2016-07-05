@@ -101,7 +101,7 @@ An annotation which specifies the properties to be used for generating the URI o
 the object itself is used to generate a URI.  But when present on a getter or setter of one or more properties on the
 bean, the values of those properties will be used as the seed for the URI.
 
-Note: There is a secondary mechanism for controlling the URI of an object.  If the object extends `Identifiable` the
+Note: There is a secondary mechanism for controlling the URI of an object.  If the object implements `Identifiable` the
 mapper will use the URI returned by `#id` ignoring any `@RdfId` annotated properties.
 
 ### `@RdfProperty`
