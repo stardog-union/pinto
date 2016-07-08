@@ -509,7 +509,14 @@ public class RDFMapper {
 		else {
 			RDFCodec aCodex = mCodecs.get(theObj.getClass());
 			if (aCodex != null) {
-				theBuilder.addProperty(theProperty, aCodex.writeValue(theObj));
+				final Value aValue = aCodex.writeValue(theObj);
+
+				if (aValue instanceof ResourceBuilder) {
+					theBuilder.addProperty(theProperty, (ResourceBuilder) aValue);
+				}
+				else {
+					theBuilder.addProperty(theProperty, aValue);
+				}
 			}
 			else {
 				theBuilder.addProperty(theProperty, write(theObj));
