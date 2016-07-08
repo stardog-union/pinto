@@ -70,38 +70,34 @@ public final class Beans {
 	 * @return          the declared fields
 	 */
 	public static Iterable<Field> getDeclaredFields(final Class<?> theClass) {
-		return new Iterable<Field>() {
-			public Iterator<Field> iterator() {
-				return new AbstractIterator<Field>() {
-					private Class<?> mCurr = theClass;
+		return () -> new AbstractIterator<Field>() {
+			private Class<?> mCurr = theClass;
 
-					private Field[] mCurrFields = new Field[0];
+			private Field[] mCurrFields = new Field[0];
 
-					private int mIndex = 0;
+			private int mIndex = 0;
 
-					/**
-					 * {@inheritDoc}
-					 */
-					@Override
-					protected Field computeNext() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			protected Field computeNext() {
 
-						if (mIndex < mCurrFields.length) {
-							return mCurrFields[mIndex++];
-						}
+				if (mIndex < mCurrFields.length) {
+					return mCurrFields[mIndex++];
+				}
 
-						while (mIndex == mCurrFields.length && mCurr != null) {
-							mCurrFields = mCurr.getDeclaredFields();
-							mCurr = mCurr.getSuperclass();
-							mIndex = 0;
+				while (mIndex == mCurrFields.length && mCurr != null) {
+					mCurrFields = mCurr.getDeclaredFields();
+					mCurr = mCurr.getSuperclass();
+					mIndex = 0;
 
-							if (mIndex < mCurrFields.length) {
-								return mCurrFields[mIndex++];
-							}
-						}
-
-						return endOfData();
+					if (mIndex < mCurrFields.length) {
+						return mCurrFields[mIndex++];
 					}
-				};
+				}
+
+				return endOfData();
 			}
 		};
 	}
@@ -113,37 +109,33 @@ public final class Beans {
 	 * @return          the declared methods
 	 */
 	public static Iterable<Method> getDeclaredMethods(final Class<?> theClass) {
-		return new Iterable<Method>() {
-			public Iterator<Method> iterator() {
-				return new AbstractIterator<Method>() {
-					private Class<?> mCurr = theClass;
+		return () -> new AbstractIterator<Method>() {
+			private Class<?> mCurr = theClass;
 
-					private Method[] mMethods = new Method[0];
+			private Method[] mMethods = new Method[0];
 
-					private int mIndex = 0;
+			private int mIndex = 0;
 
-					/**
-					 * {@inheritDoc}
-					 */
-					@Override
-					protected Method computeNext() {
-						if (mIndex < mMethods.length) {
-							return mMethods[mIndex++];
-						}
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			protected Method computeNext() {
+				if (mIndex < mMethods.length) {
+					return mMethods[mIndex++];
+				}
 
-						while (mIndex == mMethods.length && mCurr != null) {
-							mMethods = mCurr.getDeclaredMethods();
-							mCurr = mCurr.getSuperclass();
-							mIndex = 0;
+				while (mIndex == mMethods.length && mCurr != null) {
+					mMethods = mCurr.getDeclaredMethods();
+					mCurr = mCurr.getSuperclass();
+					mIndex = 0;
 
-							if (mIndex < mMethods.length) {
-								return mMethods[mIndex++];
-							}
-						}
-
-						return endOfData();
+					if (mIndex < mMethods.length) {
+						return mMethods[mIndex++];
 					}
-				};
+				}
+
+				return endOfData();
 			}
 		};
 	}

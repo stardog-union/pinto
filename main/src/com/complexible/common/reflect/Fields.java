@@ -29,6 +29,9 @@ import com.google.common.base.Predicate;
  */
 public final class Fields {
 
+	/**
+	 * No instances
+	 */
 	private Fields() {
 		throw new AssertionError();
 	}
@@ -40,11 +43,6 @@ public final class Fields {
 	 * @return              a predicate that will check a field for the annotation
 	 */
 	public static Predicate<Field> annotated(final Class<? extends Annotation> theAnnotation) {
-		return new Predicate<Field>() {
-			@Override
-			public boolean apply(final Field theInput) {
-				return theInput.getAnnotation(theAnnotation) != null;
-			}
-		};
+		return theInput -> theInput.getAnnotation(theAnnotation) != null;
 	}
 }
