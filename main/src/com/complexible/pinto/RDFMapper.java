@@ -55,7 +55,6 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.slf4j.Logger;
@@ -78,7 +77,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -94,7 +92,7 @@ import java.util.stream.StreamSupport;
  * @since   1.0
  * @version 2.0
  */
-public class RDFMapper {
+public final class RDFMapper {
 
 	/**
 	 * The logger
@@ -194,6 +192,7 @@ public class RDFMapper {
 		}
 
 		final Resource aSubj = aSubjects.iterator().next();
+
 		if (aCodec != null) {
 			return aCodec.readValue(theGraph, aSubj);
 		}
@@ -230,6 +229,10 @@ public class RDFMapper {
 		}
 
 		final T aInst = newInstance(theClass);
+
+		if (aInst instanceof Identifiable) {
+			((Identifiable)aInst).id(theObj);
+		}
 
 		for (PropertyDescriptor aDescriptor : PropertyUtils.getPropertyDescriptors(aInst)) {
 			if (isIgnored(aDescriptor)) {
@@ -892,6 +895,7 @@ public class RDFMapper {
 		// a different ID, even though it's the *same* resource.
 		final List<String> aSorted = Ordering.natural().sortedCopy(aProps);
 
+		Resource aId = null;
 		if (!Iterables.isEmpty(aSorted)) {
 			Hasher aFunc = Hashing.md5().newHasher();
 			for (String aProp : aSorted) {
@@ -910,25 +914,34 @@ public class RDFMapper {
 				}
 			}
 
-			return mValueFactory.createIRI(mDefaultNamespace + aFunc.hash().toString());
+			aId = mValueFactory.createIRI(mDefaultNamespace + aFunc.hash().toString());
 		}
 
 		for (Map.Entry<Class<?>, Function<Object, Resource>> aEntry : mIdFunctions.entrySet()) {
 			if (aEntry.getKey().isAssignableFrom(theT.getClass())) {
-				return aEntry.getValue().apply(theT);
+				aId = aEntry.getValue().apply(theT);
+				break;
 			}
 		}
 
-		if (mMappingOptions.is(MappingOptions.REQUIRE_IDS)) {
+		if (aId == null && mMappingOptions.is(MappingOptions.REQUIRE_IDS)) {
 			throw new UnidentifiableObjectException(String.format("No identifier was found for %s!  The instance should " +
 			                                                      "implement Identifiable, have one or more properties " +
 			                                                      "annotated with @RdfId, or have an id function provided " +
 			                                                      "to the mapper.", theT));
 		}
 		else {
-			return mValueFactory.createIRI(mDefaultNamespace + Hashing.md5().newHasher()
-			                                                          .putString(theT.toString(), Charsets.UTF_8)
-			                                                          .hash().toString());
+			if (aId == null) {
+				aId = mValueFactory.createIRI(mDefaultNamespace + Hashing.md5().newHasher()
+				                                                         .putString(theT.toString(), Charsets.UTF_8)
+				                                                         .hash().toString());
+			}
+
+			if (theT instanceof Identifiable) {
+				((Identifiable)theT).id(aId);
+			}
+
+			return aId;
 		}
 	}
 

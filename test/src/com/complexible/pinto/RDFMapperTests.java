@@ -380,6 +380,35 @@ public class RDFMapperTests {
 		assertEquals(aPerson.getName(), aStmt.getObject().stringValue());
 	}
 
+	@Test
+	public void testReadSetsIdentifiableId() throws Exception {
+		Person aPerson = new Person("Michael Grove");
+
+		aPerson.id(SimpleValueFactory.getInstance().createIRI("urn:mg"));
+		Model aGraph = RDFMapper.create().writeValue(aPerson);
+
+		assertEquals(1, aGraph.size());
+
+		Person aCopy = RDFMapper.create().readValue(aGraph, Person.class);
+
+		assertEquals(aPerson.id(), aCopy.id());
+	}
+
+	@Test
+	public void testWriteSetsIdentifiableId() throws Exception {
+		Person aPerson = new Person("Michael Grove");
+
+		Model aGraph = RDFMapper.create().writeValue(aPerson);
+
+		assertTrue(aPerson.id() != null);
+
+		assertEquals(1, aGraph.size());
+
+		Person aCopy = RDFMapper.create().readValue(aGraph, Person.class);
+
+		assertEquals(aPerson.id(), aCopy.id());
+	}
+
 	@Test(expected = UnidentifiableObjectException.class)
 	public void testIdentifiableNoIdNoFallback() throws Exception {
 		RDFMapper.builder()
