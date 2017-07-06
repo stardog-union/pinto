@@ -30,6 +30,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.Hashing;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.model.Literal;
@@ -52,6 +54,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -63,6 +66,20 @@ import static org.junit.Assert.assertTrue;
  * @author Michael Grove
  */
 public class RDFMapperTests {
+
+	private static TimeZone tz = TimeZone.getDefault();
+
+	@BeforeClass
+	public static void setup() {
+		// so that serialized dates get same TZ as reference data, not local TZ
+		TimeZone.setDefault(TimeZone.getTimeZone("US/Eastern"));
+	}
+
+	@AfterClass
+	public static void teardown() {
+		TimeZone.setDefault(tz);
+	}
+
 	@Test(expected = UnidentifiableObjectException.class)
 	public void testUnidentifiable() throws Exception {
 		RDFMapper aMapper = RDFMapper.builder()
