@@ -151,7 +151,7 @@ Beyond these configuration options, `RDFMapper` has a few other configuration me
 
 ## Custom serialization
 
-In some cases, an object won't ahere to the Java Bean specification, or it's a third-party class that you don't control
+In some cases, an object won't adhere to the Java Bean specification, or it's a third-party class that you don't control
 so you cannot add annotations, but you need a specific serialization.  For these cases `RDFCodec` can be used.  It's
 a small plugin to `RDFMapper` which will handle transforming a Java object to/from RDF.  Pinto includes an example
 implementation of a codec for `java.util.UUID` called `UUIDCodec`.
